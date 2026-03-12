@@ -114,7 +114,7 @@ All components are unstyled by default. Use Tailwind classes:
 
 ## 📚 Component Showcase
 
-**Live Demo:** Deploy the example app to see it live! (See [Deployment](#-deployment) section)
+**Live Demo:** [Launch Example App](https://project-rztei.vercel.app) 🚀
 
 The example app includes interactive demos of all components organized by category:
 
