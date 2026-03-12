@@ -1,0 +1,24 @@
+{
+  "name": "@ui/grid-core",
+  "version": "0.0.0",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --outDir dist"
+  }
+}
