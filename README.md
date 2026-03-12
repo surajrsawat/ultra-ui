@@ -114,7 +114,7 @@ All components are unstyled by default. Use Tailwind classes:
 
 ## 📚 Component Showcase
 
-**Live Demo:** [Launch Example App](http://localhost:5175/)
+**Live Demo:** Deploy the example app to see it live! (See [Deployment](#-deployment) section)
 
 The example app includes interactive demos of all components organized by category:
 
@@ -125,6 +125,13 @@ The example app includes interactive demos of all components organized by catego
 - 🗂️ **Display** - Cards, chips, badges
 - 📍 **Navigation** - Tabs, pagination, navbar
 - 🪟 **Surfaces** - Modals, accordions
+
+**To run locally:**
+```bash
+pnpm install
+pnpm dev:example
+# Visit http://localhost:5175/
+```
 
 ---
 
@@ -294,24 +301,46 @@ const MyButton: React.FC<ButtonProps> = (props) => (
 
 ## 🚀 Deployment
 
-### Deploy Example App
+Deploy the example app to Vercel, Netlify, or GitHub Pages to get a live demo link.
 
-**Vercel (Recommended)**
+### Vercel (Recommended - 1 minute setup)
+
+1. Push your code to GitHub (already done ✅)
+2. Go to [vercel.com](https://vercel.com)
+3. Click "New Project" → Select your `ultra-ui` repository
+4. **Important:** Set Root Directory to `apps/example`
+5. Click Deploy
+6. Your live demo will be ready at `https://ultra-ui.vercel.app`
+
 ```bash
+# Or deploy via CLI
 npm install -g vercel
 vercel --prod
 ```
 
-**Netlify**
+### Netlify
+
 ```bash
 npm install -g netlify-cli
+pnpm build
 netlify deploy --prod --dir apps/example/dist
 ```
 
-**GitHub Pages**
+### GitHub Pages
+
 ```bash
+# Build the example app
 pnpm build:example
-# Then configure repository settings to deploy from `apps/example/dist`
+
+# Push to gh-pages branch
+# Configure repository settings to deploy from `apps/example/dist`
+```
+
+---
+
+**Once deployed, update the README's Live Demo link:**
+```markdown
+**Live Demo:** [Launch Example App](https://your-deployment-url.com)
 ```
 
 ---
