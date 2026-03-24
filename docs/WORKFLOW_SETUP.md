@@ -47,12 +47,20 @@ To make checks required before merging into `main`, configure branch protection 
 3. Enable `Require status checks to pass before merging`.
 4. Select these checks:
 	- `validate`
+	- `test_case_check`
 	- `codeql`
 	- `deploy_preview`
 	- `pr_merge_gate`
 5. Optionally enable `Require branches to be up to date before merging`.
 
-If you prefer one required check instead of multiple, requiring only `pr_merge_gate` is sufficient because it depends on all PR checks.
+`test_case_check` adds a PR-visible test quality report with:
+
+- overall Vitest pass/fail status
+- coverage percentages for lines, branches, functions, and statements
+- code duplication percentage
+- a failing-test table with file name, file path, and failing test case names
+
+If you prefer one required check instead of multiple, requiring only `pr_merge_gate` is sufficient because it depends on all PR checks, including `test_case_check`.
 
 ## Required Secrets
 
@@ -115,6 +123,7 @@ Recommended mapping:
 ## Validation Checklist
 
 - Open a pull request to `main` and confirm the `Ultra UI Pipeline` workflow runs CI and preview deploy (when preview secrets are present).
+- Confirm the `test_case_check` job publishes the PR test summary with coverage, duplication, and any failing-test rows.
 - Push a `feature/*` branch and confirm `dev` and `test` deploy jobs run (when those environment secrets are present).
 - Push to `main` and confirm `dev`, `test`, and `production` deploy jobs run (when those Vercel secrets are present).
 - Push to `main` with release changes and confirm package publish runs (when `NPM_TOKEN` is present in `release` environment).
