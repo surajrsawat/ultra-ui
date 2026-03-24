@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm build:example",
-  "outputDirectory": "apps/example/dist",
+  "buildCommand": "pnpm build:showcase",
+  "outputDirectory": "apps/showcase/dist",
   "framework": "vite",
   "installCommand": "pnpm install"
 }

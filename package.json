@@ -10,10 +10,10 @@
   },
   "scripts": {
     "bootstrap": "pnpm -w install",
-    "dev:example": "pnpm --filter @ui/example dev",
-    "build": "pnpm -r --filter '!@ui/example' run build",
-    "build:example": "pnpm build && pnpm --filter @ui/example run build",
-    "build:packages": "pnpm -r --filter '!@ui/example' run build",
+    "dev:showcase": "pnpm --filter @ui/showcase dev",
+    "build": "pnpm -r --filter '!@ui/showcase' run build",
+    "build:showcase": "pnpm build && pnpm --filter @ui/showcase run build",
+    "build:packages": "pnpm -r --filter '!@ui/showcase' run build",
     "lint": "echo \"add lint scripts\""
   },
   "keywords": [],
