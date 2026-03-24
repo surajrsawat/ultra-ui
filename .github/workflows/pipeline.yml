@@ -100,7 +100,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   deploy_preview:
-    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/')
+    if: github.event_name == 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     environment: preview
@@ -152,6 +152,19 @@ jobs:
       - name: Deploy preview
         if: steps.preview_secrets.outputs.ready == 'true'
         run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
+
+  pr_merge_gate:
+    if: github.event_name == 'pull_request'
+    needs:
+      - validate
+      - codeql
+      - deploy_preview
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Merge gate summary
+        run: |
+          echo "All pull request checks completed successfully." >> "$GITHUB_STEP_SUMMARY"
 
   deploy_production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

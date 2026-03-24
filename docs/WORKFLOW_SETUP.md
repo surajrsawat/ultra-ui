@@ -20,6 +20,22 @@ Recommended protection rules:
 - `release`: require reviewers before publishing packages
 - `preview`: no approval required
 
+## Required Checks For PR Merge
+
+To make checks required before merging into `main`, configure branch protection on `main`:
+
+1. Open repository settings -> Branches -> Add branch protection rule.
+2. Branch name pattern: `main`.
+3. Enable `Require status checks to pass before merging`.
+4. Select these checks:
+	- `validate`
+	- `codeql`
+	- `deploy_preview`
+	- `pr_merge_gate`
+5. Optionally enable `Require branches to be up to date before merging`.
+
+If you prefer one required check instead of multiple, requiring only `pr_merge_gate` is sufficient because it depends on all PR checks.
+
 ## Required Secrets
 
 ### `preview` environment
