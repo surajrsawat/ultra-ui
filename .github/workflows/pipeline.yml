@@ -60,18 +60,43 @@ jobs:
       security-events: write
 
     steps:
+      - name: Check code scanning availability
+        id: code_scanning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          endpoint="https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?per_page=1"
+          status=$(curl -sS -o /tmp/code_scanning_resp.json -w "%{http_code}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "$endpoint" || true)
+
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "enabled=false" >> "$GITHUB_OUTPUT"
+          echo "Skipping CodeQL because code scanning API is unavailable (HTTP $status)." >> "$GITHUB_STEP_SUMMARY"
+          echo "If you want uploads, enable Code Scanning in repository settings and ensure appropriate permissions." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout repository
+        if: steps.code_scanning.outputs.enabled == 'true'
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
+        if: steps.code_scanning.outputs.enabled == 'true'
         uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
 
       - name: Autobuild
+        if: steps.code_scanning.outputs.enabled == 'true'
         uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL analysis
+        if: steps.code_scanning.outputs.enabled == 'true'
         uses: github/codeql-action/analyze@v3
 
   deploy_preview:
