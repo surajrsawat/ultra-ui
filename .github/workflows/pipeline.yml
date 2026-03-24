@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - feature/**
   schedule:
     - cron: '0 4 * * 1'
 
@@ -166,6 +167,114 @@ jobs:
         run: |
           echo "All pull request checks completed successfully." >> "$GITHUB_STEP_SUMMARY"
 
+  deploy_dev:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/'))
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: dev_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more dev secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel dev environment
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build dev deployment
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy dev
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
+
+  deploy_test:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/'))
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: test_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more test secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel test environment
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build test deployment
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy test
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
+
   deploy_production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: validate
@@ -283,6 +392,8 @@ jobs:
   main_deploy_gate:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
+      - deploy_dev
+      - deploy_test
       - deploy_production
       - release_packages
     runs-on: ubuntu-latest
