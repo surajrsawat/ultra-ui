@@ -11,7 +11,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({
   componentName,
 }) => {
   const componentInfo: Record<string, Record<string, any>> = {
-    '@ui/primitives': {
+    '@ultra-ui/primitives': {
       Button: {
         description: 'Interactive button component with multiple variants and sizes',
         props: [
@@ -108,7 +108,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({
         status: 'stable'
       }
     },
-    '@ui/headless': {
+    '@ultra-ui/headless': {
       useDropdown: { description: 'Hook for dropdown state management', status: 'stable' },
       useTabs: { description: 'Hook for tab navigation', status: 'stable' },
       useAccordion: { description: 'Hook for accordion state', status: 'stable' },
@@ -118,7 +118,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({
       useToggle: { description: 'Hook for boolean state toggle', status: 'stable' },
       useForm: { description: 'Hook for form state management', status: 'stable' }
     },
-    '@ui/grid-core': {
+    '@ultra-ui/grid-core': {
       Grid: { description: 'CSS Grid layout component', status: 'stable' },
       Box: { description: 'Generic layout container', status: 'stable' },
       Container: { description: 'Responsive container', status: 'stable' },
@@ -127,7 +127,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({
       Divider: { description: 'Visual separator component', status: 'stable' },
       Stack: { description: 'Stack layout component', status: 'stable' }
     },
-    '@ui/tailwind-wrappers': {
+    '@ultra-ui/tailwind-wrappers': {
       TButton: { description: 'Tailwind styled button', status: 'stable' },
       TCard: { description: 'Tailwind styled card', status: 'stable' },
       TInput: { description: 'Tailwind styled input', status: 'stable' },

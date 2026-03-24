@@ -1,10 +1,13 @@
 {
-  "name": "@ui/grid-core",
-  "version": "0.0.0",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
+  "name": "@ultra-ui/grid-core",
+  "version": "1.1.0",
+  "description": "Headless grid and layout utilities for Ultra UI.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
+  "license": "MIT",
   "dependencies": {
     "tslib": "^2.0.0"
   },
@@ -14,9 +17,21 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surajrsawat/ultra-ui.git",
+    "directory": "packages/grid-core"
+  },
+  "homepage": "https://github.com/surajrsawat/ultra-ui/tree/main/packages/grid-core",
+  "bugs": {
+    "url": "https://github.com/surajrsawat/ultra-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json --outDir dist"

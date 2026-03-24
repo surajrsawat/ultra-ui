@@ -282,6 +282,35 @@
   line-height: 1.5;
 }
 
+.headless-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.headless-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.headless-list-item {
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.headless-list-item.active {
+  border-color: #2196f3;
+  background: #e3f2fd;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .example-section-wrapper {

@@ -26,6 +26,33 @@
   opacity: 0.8;
 }
 
+.version-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.version-label {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.version-select {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-size: 12px;
+}
+
+.version-select option {
+  color: #222;
+}
+
 .nav-search {
   padding: 12px 12px;
 }
