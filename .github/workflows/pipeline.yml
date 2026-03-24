@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - feature/**
   schedule:
     - cron: '0 4 * * 1'
 
@@ -43,13 +44,89 @@ jobs:
         run: pnpm build:packages
 
       - name: Run test coverage
+        if: github.event_name != 'pull_request'
         run: pnpm test:coverage
 
       - name: Upload coverage artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage
+
+  test_case_check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Vitest with coverage report
+        id: vitest
+        run: |
+          mkdir -p reports
+          set +e
+          pnpm vitest run \
+            --coverage \
+            --coverage.reporter=text \
+            --coverage.reporter=lcov \
+            --coverage.reporter=json-summary \
+            --reporter=default \
+            --reporter=json \
+            --outputFile=reports/vitest-report.json
+          exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Measure code duplication
+        id: duplication
+        run: |
+          mkdir -p reports/jscpd
+          set +e
+          pnpm dlx jscpd packages apps/showcase/src \
+            --gitignore \
+            --threshold 100 \
+            --reporters json \
+            --output reports/jscpd
+          exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Generate PR test summary
+        env:
+          TEST_EXIT_CODE: ${{ steps.vitest.outputs.exit_code }}
+          DUPLICATION_EXIT_CODE: ${{ steps.duplication.outputs.exit_code }}
+        run: node scripts/ci/generate-pr-test-report.mjs
+
+      - name: Upload test quality artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-test-quality-report
+          path: |
+            coverage
+            reports
+
+      - name: Fail when tests do not pass
+        if: steps.vitest.outputs.exit_code != '0'
+        run: |
+          echo "Vitest reported failing tests or coverage threshold violations." >&2
+          exit 1
 
   codeql:
     if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'schedule'
@@ -157,6 +234,7 @@ jobs:
     if: github.event_name == 'pull_request'
     needs:
       - validate
+      - test_case_check
       - codeql
       - deploy_preview
     runs-on: ubuntu-latest
@@ -164,7 +242,115 @@ jobs:
     steps:
       - name: Merge gate summary
         run: |
-          echo "All pull request checks completed successfully." >> "$GITHUB_STEP_SUMMARY"
+          echo "All pull request checks, including test coverage and duplication reporting, completed successfully." >> "$GITHUB_STEP_SUMMARY"
+
+  deploy_dev:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/'))
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: dev_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more dev secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel dev environment
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build dev deployment
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy dev
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
+
+  deploy_test:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/'))
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: test_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more test secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel test environment
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build test deployment
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy test
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
 
   deploy_production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -283,6 +469,8 @@ jobs:
   main_deploy_gate:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
+      - deploy_dev
+      - deploy_test
       - deploy_production
       - release_packages
     runs-on: ubuntu-latest
