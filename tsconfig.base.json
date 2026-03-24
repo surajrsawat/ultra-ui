@@ -15,7 +15,7 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "@ui/*": ["packages/*/src"]
+      "@ultra-ui/*": ["packages/*/src"]
     }
   },
   "ts-node": { "files": true }

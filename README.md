@@ -20,10 +20,10 @@ A comprehensive, production-ready React component library built with TypeScript,
 - Customizable with Tailwind CSS
 
 📦 **Monorepo Structure**
-- `@ui/primitives` - Core UI components
-- `@ui/headless` - Headless hooks
-- `@ui/grid-core` - Advanced grid utilities
-- `@ui/tailwind-wrappers` - Tailwind-styled variations
+- `@ultra-ui/primitives` - Core UI components
+- `@ultra-ui/headless` - Headless hooks
+- `@ultra-ui/grid-core` - Advanced grid utilities
+- `@ultra-ui/tailwind-wrappers` - Tailwind-styled variations
 
 🎨 **Component Categories**
 - **Layout** - Box, Container, Grid
@@ -80,7 +80,7 @@ import {
   Switch,
   Slider,
   // ... and 25+ more components
-} from '@ui/primitives';
+} from '@ultra-ui/primitives';
 
 export default function App() {
   const [open, setOpen] = useState(false);
@@ -159,7 +159,14 @@ ultra-ui/
 │   │   │   ├── surfaces/       # Modal, Accordion
 │   │   │   └── index.ts        # Main exports
 │   │   └── package.json
-│   ├── headless/                # Headless hooks (useToggle)
+│   ├── headless/                # Headless hooks
+│   │   ├── src/
+│   │   │   ├── hooks/
+│   │   │   │   ├── useDisclosure/
+│   │   │   │   ├── usePagination/
+│   │   │   │   ├── useTabs/
+│   │   │   │   └── useToggle/
+│   │   │   └── index.ts
 │   ├── grid-core/               # Advanced grid utilities
 │   └── tailwind-wrappers/       # Tailwind-styled variants
 ├── package.json                 # Root workspace config
@@ -181,7 +188,7 @@ pnpm build
 ### Build Specific Package
 
 ```bash
-pnpm --filter @ui/primitives run build
+pnpm --filter @ultra-ui/primitives run build
 ```
 
 ### Run Type Checking
@@ -195,6 +202,10 @@ pnpm -r run build
 ```bash
 pnpm dev:showcase
 ```
+
+## 🔐 Workflow Setup
+
+Workflow environments and required secrets are documented in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
 
 ---
 
@@ -290,7 +301,7 @@ See [showcase app](./apps/showcase/src/App.tsx) for more detailed usage examples
 All components are fully typed:
 
 ```tsx
-import type { ButtonProps, ModalProps } from '@ui/primitives';
+import type { ButtonProps, ModalProps } from '@ultra-ui/primitives';
 
 const MyButton: React.FC<ButtonProps> = (props) => (
   <Button {...props} variant="primary" />

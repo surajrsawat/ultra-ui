@@ -3,22 +3,22 @@ import './SideNavigation.css';
 
 const packages = [
   {
-    name: '@ui/primitives',
+    name: '@ultra-ui/primitives',
     icon: '🎨',
     components: ['Button', 'Checkbox', 'Radio', 'Switch', 'Card', 'Badge', 'Chip', 'Alert', 'Modal', 'Accordion']
   },
   {
-    name: '@ui/headless',
+    name: '@ultra-ui/headless',
     icon: '🧠',
     components: ['useDropdown', 'useTabs', 'useAccordion', 'useModal', 'useToast', 'usePagination', 'useToggle', 'useForm']
   },
   {
-    name: '@ui/grid-core',
+    name: '@ultra-ui/grid-core',
     icon: '📐',
     components: ['Grid', 'Box', 'Container', 'Flex', 'Spacer', 'Divider', 'Stack']
   },
   {
-    name: '@ui/tailwind-wrappers',
+    name: '@ultra-ui/tailwind-wrappers',
     icon: '🎭',
     components: ['TButton', 'TCard', 'TInput', 'TBadge', 'TAlert', 'TModal', 'TAccordion']
   }
@@ -36,7 +36,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   selectedComponent,
 }) => {
   const [expandedPackages, setExpandedPackages] = useState<Set<string>>(
-    new Set(['@ui/primitives'])
+    new Set(['@ultra-ui/primitives'])
   );
   const [searchQuery, setSearchQuery] = useState('');
 

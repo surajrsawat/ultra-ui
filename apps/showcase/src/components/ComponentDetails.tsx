@@ -10,7 +10,21 @@ import {
   Modal,
   Radio,
   Switch,
-} from '@ui/primitives';
+} from '@ultra-ui/primitives';
+import {
+  useAccordion as useAccordionHook,
+  useCombobox,
+  useControllableState,
+  useDisclosure,
+  useListbox,
+  useMenu,
+  useModal as useModalHook,
+  usePagination,
+  useSelect,
+  useTabs,
+  useTypeahead,
+  useToggle,
+} from '@ultra-ui/headless';
 import './ComponentDetails.css';
 
 interface ComponentDetailsProps {
@@ -33,14 +47,14 @@ interface ComponentMeta {
 }
 
 const packageAliases: Record<string, string> = {
-  '@ui/primitives': '@ui/Primitives',
-  '@ui/headless': '@ui/Headless',
-  '@ui/grid-core': '@ui/Grid-Core',
-  '@ui/tailwind-wrappers': '@ui/Tailwind-Wrappers',
+  '@ultra-ui/primitives': '@ultra-ui/Primitives',
+  '@ultra-ui/headless': '@ultra-ui/Headless',
+  '@ultra-ui/grid-core': '@ultra-ui/Grid-Core',
+  '@ultra-ui/tailwind-wrappers': '@ultra-ui/Tailwind-Wrappers',
 };
 
 const componentInfo: Record<string, Record<string, ComponentMeta>> = {
-  '@ui/Primitives': {
+  '@ultra-ui/Primitives': {
     Button: {
       description: 'Interactive button component with multiple variants and sizes.',
       props: [
@@ -140,17 +154,131 @@ const componentInfo: Record<string, Record<string, ComponentMeta>> = {
       status: 'stable',
     },
   },
-  '@ui/Headless': {
-    useDropdown: { description: 'Hook for dropdown state management.', status: 'stable' },
-    useTabs: { description: 'Hook for tab navigation state.', status: 'stable' },
-    useAccordion: { description: 'Hook for accordion open state.', status: 'stable' },
-    useModal: { description: 'Hook for modal visibility.', status: 'stable' },
-    useToast: { description: 'Hook for toast notifications.', status: 'stable' },
-    usePagination: { description: 'Hook for pagination logic.', status: 'stable' },
-    useToggle: { description: 'Hook for boolean toggle state.', status: 'stable' },
-    useForm: { description: 'Hook for form state management.', status: 'stable' },
+  '@ultra-ui/Headless': {
+    useToggle: {
+      description: 'Simple boolean state manager with set and toggle helpers.',
+      props: [
+        { name: 'defaultValue', type: 'boolean', default: 'false' },
+      ],
+      example: "const { on, toggle, set } = useToggle(false);",
+      status: 'stable',
+    },
+    useDisclosure: {
+      description: 'Open-state utility for drawers, popovers, and dialogs with controlled and uncontrolled support.',
+      props: [
+        { name: 'defaultOpen', type: 'boolean', default: 'false' },
+        { name: 'open', type: 'boolean' },
+        { name: 'onOpenChange', type: '(open: boolean) => void' },
+      ],
+      example: "const disclosure = useDisclosure({ defaultOpen: false });",
+      status: 'stable',
+    },
+    useModal: {
+      description: 'Modal-oriented disclosure hook with backdrop and Escape key helpers.',
+      props: [
+        { name: 'defaultOpen', type: 'boolean', default: 'false' },
+        { name: 'open', type: 'boolean' },
+        { name: 'closeOnEscape', type: 'boolean', default: 'true' },
+        { name: 'onOpenChange', type: '(open: boolean) => void' },
+      ],
+      example: "const modal = useModal({ closeOnEscape: true });",
+      status: 'stable',
+    },
+    useAccordion: {
+      description: 'Manages single or multi-expand open section state for accordion UIs.',
+      props: [
+        { name: 'multiple', type: 'boolean', default: 'false' },
+        { name: 'defaultOpenIds', type: 'AccordionItemId[]', default: '[]' },
+        { name: 'openIds', type: 'AccordionItemId[]' },
+        { name: 'onChange', type: '(openIds: AccordionItemId[]) => void' },
+      ],
+      example: "const accordion = useAccordion({ multiple: true, defaultOpenIds: ['intro'] });",
+      status: 'stable',
+    },
+    useTabs: {
+      description: 'Tracks active tab id and provides sequential tab navigation helpers.',
+      props: [
+        { name: 'ids', type: 'TabId[]', required: true },
+        { name: 'defaultTabId', type: 'TabId' },
+        { name: 'activeTabId', type: 'TabId' },
+        { name: 'onChange', type: '(id: TabId) => void' },
+      ],
+      example: "const tabs = useTabs({ ids: ['overview', 'api', 'examples'] });",
+      status: 'stable',
+    },
+    usePagination: {
+      description: 'Computes pagination boundaries and exposes page navigation controls.',
+      props: [
+        { name: 'totalItems', type: 'number', required: true },
+        { name: 'pageSize', type: 'number', default: '10' },
+        { name: 'initialPage', type: 'number', default: '1' },
+        { name: 'currentPage', type: 'number' },
+        { name: 'onPageChange', type: '(page: number) => void' },
+      ],
+      example: "const paging = usePagination({ totalItems: 237, pageSize: 20 });",
+      status: 'stable',
+    },
+    useControllableState: {
+      description: 'Shared utility for components that support both controlled and uncontrolled state.',
+      props: [
+        { name: 'value', type: 'T' },
+        { name: 'defaultValue', type: 'T', required: true },
+        { name: 'onChange', type: '(value: T) => void' },
+      ],
+      example: "const [value, setValue] = useControllableState({ defaultValue: '' });",
+      status: 'stable',
+    },
+    useMenu: {
+      description: 'Keyboard-focused menu state hook with highlight, loop, and open control.',
+      props: [
+        { name: 'itemsCount', type: 'number', required: true },
+        { name: 'defaultOpen', type: 'boolean', default: 'false' },
+        { name: 'loop', type: 'boolean', default: 'true' },
+        { name: 'closeOnSelect', type: 'boolean', default: 'true' },
+      ],
+      example: "const menu = useMenu({ itemsCount: items.length, loop: true });",
+      status: 'stable',
+    },
+    useSelect: {
+      description: 'Selection state hook built for custom select UIs with keyboard navigation.',
+      props: [
+        { name: 'options', type: 'SelectOption[]', required: true },
+        { name: 'defaultSelectedIndex', type: 'number', default: '0' },
+        { name: 'closeOnSelect', type: 'boolean', default: 'true' },
+      ],
+      example: "const select = useSelect({ options });",
+      status: 'stable',
+    },
+    useCombobox: {
+      description: 'Autocomplete/combobox state hook with filtering and keyboard-driven selection.',
+      props: [
+        { name: 'options', type: 'ComboboxOption[]', required: true },
+        { name: 'defaultInputValue', type: 'string', default: "''" },
+      ],
+      example: "const combo = useCombobox({ options });",
+      status: 'stable',
+    },
+    useTypeahead: {
+      description: 'Buffered typeahead query matching for keyboard-first option navigation.',
+      props: [
+        { name: 'items', type: 'string[]', required: true },
+        { name: 'timeoutMs', type: 'number', default: '500' },
+      ],
+      example: "const typeahead = useTypeahead({ items: ['Apple', 'Apricot', 'Banana'] });",
+      status: 'stable',
+    },
+    useListbox: {
+      description: 'Listbox state hook with arrow navigation, Enter/Space selection, and built-in typeahead.',
+      props: [
+        { name: 'itemsCount', type: 'number', required: true },
+        { name: 'itemLabels', type: 'string[]' },
+        { name: 'selectionMode', type: "'single' | 'multiple'", default: 'single' },
+      ],
+      example: "const listbox = useListbox({ itemsCount: options.length, itemLabels: options });",
+      status: 'stable',
+    },
   },
-  '@ui/Grid-Core': {
+  '@ultra-ui/Grid-Core': {
     Grid: { description: 'CSS Grid layout component.', status: 'stable' },
     Box: { description: 'Generic layout container.', status: 'stable' },
     Container: { description: 'Responsive container wrapper.', status: 'stable' },
@@ -159,7 +287,7 @@ const componentInfo: Record<string, Record<string, ComponentMeta>> = {
     Divider: { description: 'Visual separator component.', status: 'stable' },
     Stack: { description: 'Vertical or horizontal stack layout.', status: 'stable' },
   },
-  '@ui/Tailwind-Wrappers': {
+  '@ultra-ui/Tailwind-Wrappers': {
     TButton: { description: 'Tailwind-styled button wrapper.', status: 'stable' },
     TCard: { description: 'Tailwind-styled card wrapper.', status: 'stable' },
     TInput: { description: 'Tailwind-styled input wrapper.', status: 'stable' },
@@ -174,19 +302,303 @@ function normalizePackageId(packageId: string) {
   return packageAliases[packageId] ?? packageId;
 }
 
-const ComponentDemo: React.FC<{ componentName: string }> = ({ componentName }) => {
+const ComponentDemo: React.FC<{ packageId: string; componentName: string }> = ({ packageId, componentName }) => {
   const [buttonClicks, setButtonClicks] = useState(0);
   const [checked, setChecked] = useState(false);
   const [radioValue, setRadioValue] = useState<string | number>('1');
   const [enabled, setEnabled] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chips, setChips] = useState(['React', 'TypeScript', 'UI']);
+  const [serverValue, setServerValue] = useState('server-state');
+  const [menuLastAction, setMenuLastAction] = useState('None');
+  const [typeaheadLastKey, setTypeaheadLastKey] = useState('None');
+
+  const menuHook = useMenu({ itemsCount: 5, defaultOpen: true, loop: true });
+  const selectHook = useSelect({
+    options: [
+      { label: 'React', value: 'react' },
+      { label: 'Vue', value: 'vue' },
+      { label: 'Svelte', value: 'svelte' },
+      { label: 'Solid', value: 'solid' },
+    ],
+  });
+  const comboboxHook = useCombobox({
+    options: [
+      { label: 'Apple', value: 'apple' },
+      { label: 'Apricot', value: 'apricot' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Blueberry', value: 'blueberry' },
+      { label: 'Cherry', value: 'cherry' },
+    ],
+  });
+  const typeaheadHook = useTypeahead({
+    items: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry'],
+    timeoutMs: 600,
+  });
+  const listboxItems = ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry'];
+  const listboxHook = useListbox({
+    itemsCount: listboxItems.length,
+    itemLabels: listboxItems,
+    defaultSelectedIndex: 0,
+    defaultOpen: true,
+    selectionMode: 'single',
+  });
+  const toggleHook = useToggle(false);
+  const disclosureHook = useDisclosure({ defaultOpen: false });
+  const modalHook = useModalHook({ defaultOpen: false, closeOnEscape: true });
+  const accordionHook = useAccordionHook<string>({
+    multiple: true,
+    defaultOpenIds: ['intro'],
+  });
+  const tabsHook = useTabs({
+    ids: ['overview', 'api', 'examples'],
+    defaultTabId: 'overview',
+  });
+  const paginationHook = usePagination({ totalItems: 137, pageSize: 10, initialPage: 2 });
+  const [localState, setLocalState] = useControllableState({ defaultValue: 'draft' });
+  const [controlledState, setControlledState] = useControllableState({
+    value: serverValue,
+    defaultValue: 'server-state',
+    onChange: setServerValue,
+  });
 
   const accordionItems = [
     { id: 1, title: 'Section 1', content: 'This is the first accordion section.' },
     { id: 2, title: 'Section 2', content: 'This is the second accordion section.' },
     { id: 3, title: 'Section 3', content: 'This is the third accordion section.' },
   ];
+
+  if (packageId === '@ultra-ui/Headless') {
+    switch (componentName) {
+      case 'useToggle':
+        return (
+          <div className="demo-container">
+            <Button onClick={toggleHook.toggle}>{toggleHook.on ? 'On' : 'Off'}</Button>
+            <p className="demo-feedback">State: {String(toggleHook.on)}</p>
+          </div>
+        );
+      case 'useDisclosure':
+        return (
+          <div className="demo-container">
+            <Button onClick={disclosureHook.onToggle}>Toggle Panel</Button>
+            {disclosureHook.open && <Card title="Disclosure Panel">Disclosure content is visible.</Card>}
+            <p className="demo-feedback">Open: {String(disclosureHook.open)}</p>
+          </div>
+        );
+      case 'useModal':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button onClick={modalHook.onOpen}>Open Hook Modal</Button>
+              <Button variant="outline" onClick={() => modalHook.getDialogProps().onKeyDown({ key: 'Escape' })}>
+                Simulate Escape
+              </Button>
+            </div>
+            <p className="demo-feedback">Open: {String(modalHook.open)}</p>
+            {modalHook.open && (
+              <Card title="Hook Modal State">
+                <p>Modal open state is controlled by useModal.</p>
+                <Button onClick={modalHook.onClose}>Close</Button>
+              </Card>
+            )}
+          </div>
+        );
+      case 'useAccordion':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={() => accordionHook.toggle('intro')}>Toggle intro</Button>
+              <Button variant="outline" onClick={() => accordionHook.toggle('api')}>Toggle api</Button>
+              <Button variant="outline" onClick={() => accordionHook.openAll(['intro', 'api'])}>Open all</Button>
+              <Button variant="outline" onClick={accordionHook.closeAll}>Close all</Button>
+            </div>
+            <p className="demo-feedback">Open IDs: {accordionHook.openIds.join(', ') || 'none'}</p>
+          </div>
+        );
+      case 'useTabs':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={tabsHook.previousTab}>Previous</Button>
+              <Button variant="outline" onClick={tabsHook.nextTab}>Next</Button>
+            </div>
+            <p className="demo-feedback">Active Tab: {tabsHook.activeTabId}</p>
+          </div>
+        );
+      case 'usePagination':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={paginationHook.previousPage} disabled={!paginationHook.canGoPrevious}>Previous</Button>
+              <Button variant="outline" onClick={paginationHook.nextPage} disabled={!paginationHook.canGoNext}>Next</Button>
+            </div>
+            <p className="demo-feedback">
+              Page {paginationHook.currentPage}/{paginationHook.totalPages} - Showing items {paginationHook.startIndex + 1} to {paginationHook.endIndex}
+            </p>
+          </div>
+        );
+      case 'useControllableState':
+        return (
+          <div className="demo-stack">
+            <Card title="Uncontrolled">
+              <p>Local: {localState}</p>
+              <Button onClick={() => setLocalState((previous) => `${previous}-next`)}>Update Local</Button>
+            </Card>
+            <Card title="Controlled">
+              <p>Controlled: {controlledState}</p>
+              <Button onClick={() => setControlledState((previous) => `${previous}-next`)}>Update Controlled</Button>
+              <Button variant="outline" onClick={() => setServerValue('server-reset')}>Reset External Value</Button>
+            </Card>
+          </div>
+        );
+      case 'useMenu':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={() => {
+                menuHook.onKeyDown({ key: 'ArrowDown' });
+                setMenuLastAction('ArrowDown');
+              }}>
+                ArrowDown
+              </Button>
+              <Button variant="outline" onClick={() => {
+                menuHook.onKeyDown({ key: 'ArrowUp' });
+                setMenuLastAction('ArrowUp');
+              }}>
+                ArrowUp
+              </Button>
+              <Button variant="outline" onClick={() => {
+                menuHook.onKeyDown({ key: 'Home' });
+                setMenuLastAction('Home');
+              }}>
+                Home
+              </Button>
+              <Button variant="outline" onClick={() => {
+                menuHook.onKeyDown({ key: 'End' });
+                setMenuLastAction('End');
+              }}>
+                End
+              </Button>
+              <Button variant="outline" onClick={() => {
+                menuHook.onKeyDown({ key: 'Escape' });
+                setMenuLastAction('Escape');
+              }}>
+                Escape
+              </Button>
+            </div>
+            <p className="demo-feedback">
+              Open: {String(menuHook.open)} | Highlighted: {menuHook.highlightedIndex} | Last Key: {menuLastAction}
+            </p>
+          </div>
+        );
+      case 'useSelect':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={() => selectHook.onKeyDown({ key: 'ArrowDown' })}>ArrowDown</Button>
+              <Button variant="outline" onClick={() => selectHook.onKeyDown({ key: 'ArrowUp' })}>ArrowUp</Button>
+              <Button variant="outline" onClick={() => selectHook.onKeyDown({ key: 'Enter' })}>Enter</Button>
+              <Button variant="outline" onClick={() => selectHook.onToggle()}>Toggle</Button>
+            </div>
+            <p className="demo-feedback">
+              Open: {String(selectHook.open)} | Highlighted: {selectHook.highlightedIndex} | Selected: {selectHook.selectedOption?.label}
+            </p>
+          </div>
+        );
+      case 'useCombobox':
+        return (
+          <div className="demo-container">
+            <input
+              className="headless-input"
+              value={comboboxHook.inputValue}
+              onChange={(event) => comboboxHook.onInputChange(event.target.value)}
+              placeholder="Type a fruit"
+            />
+            <div className="demo-grid">
+              <Button variant="outline" onClick={() => comboboxHook.onKeyDown({ key: 'ArrowDown' })}>ArrowDown</Button>
+              <Button variant="outline" onClick={() => comboboxHook.onKeyDown({ key: 'ArrowUp' })}>ArrowUp</Button>
+              <Button variant="outline" onClick={() => comboboxHook.onKeyDown({ key: 'Enter' })}>Enter</Button>
+            </div>
+            <p className="demo-feedback">
+              Open: {String(comboboxHook.open)} | Highlighted: {comboboxHook.highlightedIndex} | Filtered: {comboboxHook.filteredOptions.length}
+            </p>
+            <div className="headless-list">
+              {comboboxHook.filteredOptions.map((option, index) => (
+                <button
+                  key={option.value}
+                  className={`headless-list-item ${index === comboboxHook.highlightedIndex ? 'active' : ''}`}
+                  onClick={() => comboboxHook.selectIndex(index)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      case 'useTypeahead':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={() => {
+                typeaheadHook.onType('a');
+                setTypeaheadLastKey('a');
+              }}>
+                Type "a"
+              </Button>
+              <Button variant="outline" onClick={() => {
+                typeaheadHook.onType('p');
+                setTypeaheadLastKey('p');
+              }}>
+                Type "p"
+              </Button>
+              <Button variant="outline" onClick={() => {
+                typeaheadHook.onType('b');
+                setTypeaheadLastKey('b');
+              }}>
+                Type "b"
+              </Button>
+              <Button variant="outline" onClick={() => {
+                typeaheadHook.reset();
+                setTypeaheadLastKey('reset');
+              }}>
+                Reset
+              </Button>
+            </div>
+            <p className="demo-feedback">
+              Query: {typeaheadHook.query || '(empty)'} | Match Index: {typeaheadHook.matchedIndex} | Last Key: {typeaheadLastKey}
+            </p>
+          </div>
+        );
+      case 'useListbox':
+        return (
+          <div className="demo-container">
+            <div className="demo-grid">
+              <Button variant="outline" onClick={() => listboxHook.onKeyDown({ key: 'ArrowDown' })}>ArrowDown</Button>
+              <Button variant="outline" onClick={() => listboxHook.onKeyDown({ key: 'ArrowUp' })}>ArrowUp</Button>
+              <Button variant="outline" onClick={() => listboxHook.onKeyDown({ key: 'Enter' })}>Enter</Button>
+              <Button variant="outline" onClick={() => listboxHook.onKeyDown({ key: ' ' })}>Space</Button>
+              <Button variant="outline" onClick={() => listboxHook.onKeyDown({ key: 'b' })}>Type "b"</Button>
+            </div>
+            <p className="demo-feedback">
+              Open: {String(listboxHook.open)} | Highlighted: {listboxHook.highlightedIndex} | Selected: {listboxItems[listboxHook.selectedIndex]} | Query: {listboxHook.typeaheadQuery || '(empty)'}
+            </p>
+            <div className="headless-list">
+              {listboxItems.map((label, index) => (
+                <button
+                  key={label}
+                  className={`headless-list-item ${index === listboxHook.highlightedIndex ? 'active' : ''}`}
+                  onClick={() => listboxHook.selectIndex(index)}
+                >
+                  {label} {listboxHook.isSelected(index) ? '✓' : ''}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      default:
+        return <p>No interactive demo available for this item.</p>;
+    }
+  }
 
   switch (componentName) {
     case 'Button':
@@ -355,11 +767,11 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({ packageId, componen
                 </div>
               </div>
 
-              {normalizedPackageId === '@ui/Primitives' && (
+              {(normalizedPackageId === '@ultra-ui/Primitives' || normalizedPackageId === '@ultra-ui/Headless') && (
                 <div className="example-demo-section">
                   <h2>Interactive Demo</h2>
                   <div className="demo-section">
-                    <ComponentDemo componentName={componentName} />
+                    <ComponentDemo packageId={normalizedPackageId} componentName={componentName} />
                   </div>
                 </div>
               )}

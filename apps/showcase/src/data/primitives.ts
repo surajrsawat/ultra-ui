@@ -1,31 +1,17 @@
-# Documentation for Primitive Components
+export interface ShowcaseDocItem {
+	name: string;
+	description: string;
+}
 
-## 1. Button
-- A clickable component that triggers an action.
-
-## 2. Checkbox
-- A component that allows users to select one or more options from a set.
-
-## 3. Radio
-- A component for selecting one option from a set.
-
-## 4. Switch
-- A toggle component for enabling or disabling a feature.
-
-## 5. Card
-- A container that encapsulates content and actions.
-
-## 6. Badge
-- A small component that displays a status or count.
-
-## 7. Chip
-- A component representing an input, choice, or action.
-
-## 8. Alert
-- A message that informs the user about a system status.
-
-## 9. Modal
-- A dialog that focuses user attention on important content.
-
-## 10. Accordion
-- A component that expands to reveal additional content.
+export const primitiveDocs: ShowcaseDocItem[] = [
+	{ name: 'Button', description: 'A clickable component that triggers an action.' },
+	{ name: 'Checkbox', description: 'A component that allows users to select one or more options from a set.' },
+	{ name: 'Radio', description: 'A component for selecting one option from a set.' },
+	{ name: 'Switch', description: 'A toggle component for enabling or disabling a feature.' },
+	{ name: 'Card', description: 'A container that encapsulates content and actions.' },
+	{ name: 'Badge', description: 'A small component that displays a status or count.' },
+	{ name: 'Chip', description: 'A component representing an input, choice, or action.' },
+	{ name: 'Alert', description: 'A message that informs the user about a system status.' },
+	{ name: 'Modal', description: 'A dialog that focuses user attention on important content.' },
+	{ name: 'Accordion', description: 'A component that expands to reveal additional content.' },
+];

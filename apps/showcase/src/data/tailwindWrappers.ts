@@ -1,22 +1,14 @@
-# Documentation for Tailwind-Styled Components
+export interface ShowcaseDocItem {
+	name: string;
+	description: string;
+}
 
-## 1. TButton
-- A button styled with Tailwind CSS.
-
-## 2. TCard
-- A card component styled with Tailwind CSS.
-
-## 3. TInput
-- An input field styled with Tailwind CSS.
-
-## 4. TBadge
-- A badge component styled with Tailwind CSS.
-
-## 5. TAlert
-- An alert component styled with Tailwind CSS.
-
-## 6. TModal
-- A modal component styled with Tailwind CSS.
-
-## 7. TAccordion
-- An accordion component styled with Tailwind CSS.
+export const tailwindWrapperDocs: ShowcaseDocItem[] = [
+	{ name: 'TButton', description: 'A button styled with Tailwind CSS.' },
+	{ name: 'TCard', description: 'A card component styled with Tailwind CSS.' },
+	{ name: 'TInput', description: 'An input field styled with Tailwind CSS.' },
+	{ name: 'TBadge', description: 'A badge component styled with Tailwind CSS.' },
+	{ name: 'TAlert', description: 'An alert component styled with Tailwind CSS.' },
+	{ name: 'TModal', description: 'A modal component styled with Tailwind CSS.' },
+	{ name: 'TAccordion', description: 'An accordion component styled with Tailwind CSS.' },
+];

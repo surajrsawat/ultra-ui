@@ -1,44 +1,83 @@
 import React, { useState } from 'react';
 import './SideNavigation.css';
 
-const packages = [
-  {
-    name: '@ui/Primitives',
-    icon: '🎨',
-    components: ['Button', 'Checkbox', 'Radio', 'Switch', 'Card', 'Badge', 'Chip', 'Alert', 'Modal', 'Accordion']
-  },
-  {
-    name: '@ui/Headless',
-    icon: '🧠',
-    components: ['useDropdown', 'useTabs', 'useAccordion', 'useModal', 'useToast', 'usePagination', 'useToggle', 'useForm']
-  },
-  {
-    name: '@ui/Grid-Core',
-    icon: '📐',
-    components: ['Grid', 'Box', 'Container', 'Flex', 'Spacer', 'Divider', 'Stack']
-  },
-  {
-    name: '@ui/Tailwind-Wrappers',
-    icon: '🎭',
-    components: ['TButton', 'TCard', 'TInput', 'TBadge', 'TAlert', 'TModal', 'TAccordion']
-  }
-];
+export type UltraUiVersion = '1.0.0' | '1.1.0';
+
+interface PackageCatalogEntry {
+  name: string;
+  icon: string;
+  components: string[];
+}
+
+export const packageCatalogByVersion: Record<UltraUiVersion, PackageCatalogEntry[]> = {
+  '1.0.0': [
+    {
+      name: '@ultra-ui/Primitives',
+      icon: '🎨',
+      components: ['Button', 'Checkbox', 'Radio', 'Switch', 'Card', 'Badge', 'Chip', 'Alert', 'Modal', 'Accordion']
+    },
+    {
+      name: '@ultra-ui/Headless',
+      icon: '🧠',
+      components: ['useToggle', 'useDisclosure', 'useModal', 'useAccordion', 'useTabs', 'usePagination', 'useControllableState', 'useMenu', 'useSelect', 'useCombobox']
+    },
+    {
+      name: '@ultra-ui/Grid-Core',
+      icon: '📐',
+      components: ['Grid', 'Box', 'Container', 'Flex', 'Spacer', 'Divider', 'Stack']
+    },
+    {
+      name: '@ultra-ui/Tailwind-Wrappers',
+      icon: '🎭',
+      components: ['TButton', 'TCard', 'TInput', 'TBadge', 'TAlert', 'TModal', 'TAccordion']
+    }
+  ],
+  '1.1.0': [
+    {
+      name: '@ultra-ui/Primitives',
+      icon: '🎨',
+      components: ['Button', 'Checkbox', 'Radio', 'Switch', 'Card', 'Badge', 'Chip', 'Alert', 'Modal', 'Accordion']
+    },
+    {
+      name: '@ultra-ui/Headless',
+      icon: '🧠',
+      components: ['useToggle', 'useDisclosure', 'useModal', 'useAccordion', 'useTabs', 'usePagination', 'useControllableState', 'useMenu', 'useSelect', 'useCombobox', 'useTypeahead', 'useListbox']
+    },
+    {
+      name: '@ultra-ui/Grid-Core',
+      icon: '📐',
+      components: ['Grid', 'Box', 'Container', 'Flex', 'Spacer', 'Divider', 'Stack']
+    },
+    {
+      name: '@ultra-ui/Tailwind-Wrappers',
+      icon: '🎭',
+      components: ['TButton', 'TCard', 'TInput', 'TBadge', 'TAlert', 'TModal', 'TAccordion']
+    }
+  ]
+};
+
+const packageVersions: UltraUiVersion[] = ['1.0.0', '1.1.0'];
 
 interface SideNavigationProps {
   onSelectComponent: (packageId: string, componentName: string) => void;
   selectedPackage: string;
   selectedComponent: string;
+  selectedVersion: UltraUiVersion;
+  onVersionChange: (version: UltraUiVersion) => void;
 }
 
 const SideNavigation: React.FC<SideNavigationProps> = ({
   onSelectComponent,
   selectedPackage,
   selectedComponent,
+  selectedVersion,
+  onVersionChange,
 }) => {
   const [expandedPackages, setExpandedPackages] = useState<Set<string>>(
-    new Set(['@ui/Primitives'])
+    new Set(['@ultra-ui/Primitives'])
   );
   const [searchQuery, setSearchQuery] = useState('');
+  const versionedPackages = packageCatalogByVersion[selectedVersion];
 
   const togglePackage = (packageName: string) => {
     const newExpanded = new Set(expandedPackages);
@@ -55,6 +94,19 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       <div className="nav-header">
         <h1>📚 Ultra UI</h1>
         <p>Component Library</p>
+        <div className="version-switcher">
+          <label htmlFor="ultra-version-select" className="version-label">Version</label>
+          <select
+            id="ultra-version-select"
+            className="version-select"
+            value={selectedVersion}
+            onChange={(event) => onVersionChange(event.target.value as UltraUiVersion)}
+          >
+            {packageVersions.map((version) => (
+              <option key={version} value={version}>v{version}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="nav-search">
@@ -68,7 +120,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       </div>
 
       <nav className="nav-packages">
-        {packages.map((pkg) => (
+        {versionedPackages.map((pkg) => (
           <div key={pkg.name} className="package-section">
             <button
               className={`package-header ${expandedPackages.has(pkg.name) ? 'expanded' : ''}`}
@@ -111,7 +163,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
       </nav>
 
       <div className="nav-footer">
-        <p>Ultra UI v1.0.0</p>
+        <p>Ultra UI v{selectedVersion}</p>
       </div>
     </aside>
   );

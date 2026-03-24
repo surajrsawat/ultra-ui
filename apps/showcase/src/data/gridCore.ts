@@ -1,22 +1,14 @@
-# Documentation for Grid/Layout Components
+export interface ShowcaseDocItem {
+	name: string;
+	description: string;
+}
 
-## 1. Grid
-- A component that implements a grid layout.
-
-## 2. Box
-- A simple container for layout.
-
-## 3. Container
-- A responsive fixed-width container.
-
-## 4. Flex
-- A component that uses flexbox layout.
-
-## 5. Spacer
-- A component that provides space between elements.
-
-## 6. Divider
-- A component that visually separates content.
-
-## 7. Stack
-- A layout component for stacking items vertically.
+export const gridCoreDocs: ShowcaseDocItem[] = [
+	{ name: 'Grid', description: 'A component that implements a grid layout.' },
+	{ name: 'Box', description: 'A simple container for layout.' },
+	{ name: 'Container', description: 'A responsive fixed-width container.' },
+	{ name: 'Flex', description: 'A component that uses flexbox layout.' },
+	{ name: 'Spacer', description: 'A component that provides space between elements.' },
+	{ name: 'Divider', description: 'A component that visually separates content.' },
+	{ name: 'Stack', description: 'A layout component for stacking items vertically.' },
+];
