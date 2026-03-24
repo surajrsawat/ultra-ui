@@ -1,6 +1,16 @@
 # Workflow Environment Setup
 
-This repository now expects three GitHub environments and a small set of secrets so release and Vercel deployment workflows can run end to end.
+This repository uses one consolidated GitHub Actions workflow at `.github/workflows/pipeline.yml`.
+
+The pipeline includes CI, CodeQL, Vercel deploy (preview/production), and package release jobs.
+
+When code is merged into `main`, the same pipeline triggers the main-branch deploy flow:
+
+- `deploy_production` (Vercel production deploy)
+- `release_packages` (Changesets publish flow)
+- `main_deploy_gate` (post-merge completion gate)
+
+Deploy and release jobs are secret-gated: if required secrets are missing, those jobs are skipped with a clear summary note instead of failing hard.
 
 ## GitHub Environments
 
@@ -15,6 +25,22 @@ Recommended protection rules:
 - `production`: require reviewers before deployment
 - `release`: require reviewers before publishing packages
 - `preview`: no approval required
+
+## Required Checks For PR Merge
+
+To make checks required before merging into `main`, configure branch protection on `main`:
+
+1. Open repository settings -> Branches -> Add branch protection rule.
+2. Branch name pattern: `main`.
+3. Enable `Require status checks to pass before merging`.
+4. Select these checks:
+	- `validate`
+	- `codeql`
+	- `deploy_preview`
+	- `pr_merge_gate`
+5. Optionally enable `Require branches to be up to date before merging`.
+
+If you prefer one required check instead of multiple, requiring only `pr_merge_gate` is sufficient because it depends on all PR checks.
 
 ## Required Secrets
 
@@ -56,6 +82,6 @@ Recommended protection rules:
 
 ## Validation Checklist
 
-- Open a pull request from `feature/*` and confirm the `Deploy Showcase` workflow creates a preview deployment.
-- Push to `main` and confirm the production environment requires approval if protection rules are enabled.
-- Merge a changeset-enabled release PR and confirm the `Release Packages` workflow can publish using `NPM_TOKEN`.
+- Open a pull request from `feature/*` and confirm the `Ultra UI Pipeline` workflow runs CI and preview deploy (when preview secrets are present).
+- Push to `main` and confirm production deploy runs (when production Vercel secrets are present).
+- Push to `main` with release changes and confirm package publish runs (when `NPM_TOKEN` is present in `release` environment).
