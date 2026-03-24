@@ -61,7 +61,7 @@ cd ultra-ui
 pnpm install
 
 # Start development server
-pnpm dev:example
+pnpm dev:showcase
 
 # Visit http://localhost:5175/
 ```
@@ -129,7 +129,7 @@ The example app includes interactive demos of all components organized by catego
 **To run locally:**
 ```bash
 pnpm install
-pnpm dev:example
+pnpm dev:showcase
 # Visit http://localhost:5175/
 ```
 
@@ -140,7 +140,7 @@ pnpm dev:example
 ```
 ultra-ui/
 ├── apps/
-│   └── example/                 # Interactive component showcase
+│   └── showcase/                # Interactive component showcase
 │       ├── src/
 │       │   ├── App.tsx         # All component demos
 │       │   └── main.tsx
@@ -193,7 +193,7 @@ pnpm -r run build
 ### Watch Mode (Example App)
 
 ```bash
-pnpm dev:example
+pnpm dev:showcase
 ```
 
 ---
@@ -263,7 +263,7 @@ pnpm dev:example
 />
 ```
 
-See [example app](./apps/example/src/App.tsx) for more detailed usage examples.
+See [showcase app](./apps/showcase/src/App.tsx) for more detailed usage examples.
 
 ---
 
@@ -308,7 +308,7 @@ Deploy the example app to Vercel, Netlify, or GitHub Pages to get a live demo li
 1. Push your code to GitHub (already done ✅)
 2. Go to [vercel.com](https://vercel.com)
 3. Click "New Project" → Select your `ultra-ui` repository
-4. **Important:** Set Root Directory to `apps/example`
+4. **Important:** Set Root Directory to `apps/showcase`
 5. Click Deploy
 6. Your live demo will be ready at `https://ultra-ui.vercel.app`
 
@@ -323,17 +323,17 @@ vercel --prod
 ```bash
 npm install -g netlify-cli
 pnpm build
-netlify deploy --prod --dir apps/example/dist
+netlify deploy --prod --dir apps/showcase/dist
 ```
 
 ### GitHub Pages
 
 ```bash
 # Build the example app
-pnpm build:example
+pnpm build:showcase
 
 # Push to gh-pages branch
-# Configure repository settings to deploy from `apps/example/dist`
+# Configure repository settings to deploy from `apps/showcase/dist`
 ```
 
 ---

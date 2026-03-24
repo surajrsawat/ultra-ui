@@ -4,7 +4,7 @@ import ComponentDetails from './components/ComponentDetails';
 import './App.css';
 
 export default function App() {
-  const [selectedPackage, setSelectedPackage] = useState<string>('primitives');
+  const [selectedPackage, setSelectedPackage] = useState<string>('@ui/Primitives');
   const [selectedComponent, setSelectedComponent] = useState<string>('Button');
 
   const handleSelectComponent = (packageId: string, componentName: string) => {
