@@ -4,6 +4,12 @@ This repository uses one consolidated GitHub Actions workflow at `.github/workfl
 
 The pipeline includes CI, CodeQL, Vercel deploy (preview/production), and package release jobs.
 
+When code is merged into `main`, the same pipeline triggers the main-branch deploy flow:
+
+- `deploy_production` (Vercel production deploy)
+- `release_packages` (Changesets publish flow)
+- `main_deploy_gate` (post-merge completion gate)
+
 Deploy and release jobs are secret-gated: if required secrets are missing, those jobs are skipped with a clear summary note instead of failing hard.
 
 ## GitHub Environments
