@@ -1,4 +1,4 @@
-# Ultra UI
+# Ultra UI Library
 
 A comprehensive, production-ready React component library built with TypeScript, Tailwind CSS, and modern best practices.
 
