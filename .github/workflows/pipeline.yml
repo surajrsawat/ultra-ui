@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  actions: read
   contents: read
   pull-requests: write
 
@@ -91,6 +92,10 @@ jobs:
   test_case_check:
     needs: codeql
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -159,6 +164,7 @@ jobs:
 
       - name: Update PR summary comment
         if: always()
+        continue-on-error: true
         uses: actions/github-script@v7
         env:
           TEST_EXIT_CODE: ${{ steps.vitest.outputs.exit_code }}
