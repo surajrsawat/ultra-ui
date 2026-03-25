@@ -1,2 +1,2 @@
-export { TwButton } from './TwButton';
-export { TwTable } from './TwTable';
+export { TwButton } from './TwButton/index';
+export { TwTable } from './TwTable/index';

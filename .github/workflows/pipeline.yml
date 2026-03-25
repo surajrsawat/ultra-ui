@@ -43,6 +43,9 @@ jobs:
       - name: Build packages
         run: pnpm build:packages
 
+      - name: Verify package contents
+        run: pnpm pack:check
+
       - name: Run test coverage
         if: github.event_name != 'pull_request'
         run: pnpm test:coverage
@@ -454,6 +457,10 @@ jobs:
       - name: Build workspace packages
         if: steps.npm_auth.outputs.ready == 'true'
         run: pnpm build:packages
+
+      - name: Verify package contents
+        if: steps.npm_auth.outputs.ready == 'true'
+        run: pnpm pack:check
 
       - name: Create release pull request or publish
         if: steps.npm_auth.outputs.ready == 'true'

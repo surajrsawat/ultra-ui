@@ -14,12 +14,18 @@ describe('useGrid', () => {
 
   it('builds row models and row props from the public export', () => {
     const { result } = renderHook(() => useGrid({ data: rows, columns }));
+    const firstRow = result.current.rows[0];
+    const firstColumn = columns[0];
 
     expect(result.current.rows).toHaveLength(2);
-    expect(result.current.rows[0]?.id).toBe('row-1');
+    expect(firstRow?.id).toBe('row-1');
 
-    const rowProps = result.current.getRowProps(result.current.rows[0]!);
-    const cellProps = result.current.getCellProps(result.current.rows[0]!, columns[0]!);
+    if (!firstRow || !firstColumn) {
+      throw new Error('Expected test data to contain a row and column.');
+    }
+
+    const rowProps = result.current.getRowProps(firstRow);
+    const cellProps = result.current.getCellProps(firstRow, firstColumn);
 
     expect(rowProps['data-rowid']).toBe('row-1');
     expect(rowProps.role).toBe('row');
