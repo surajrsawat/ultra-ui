@@ -1,2 +1,2 @@
-export { useGrid } from './useGrid';
-export type { ColumnDef, RowModel } from './types';
+export { useGrid } from './useGrid/index';
+export type { ColumnDef, RowModel } from './useGrid/index';

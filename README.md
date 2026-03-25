@@ -203,9 +203,21 @@ pnpm -r run build
 pnpm dev:showcase
 ```
 
+### Validate Publishable Packages
+
+```bash
+pnpm build:packages
+pnpm pack:check
+```
+
 ## 🔐 Workflow Setup
 
 Workflow environments and required secrets are documented in [docs/WORKFLOW_SETUP.md](docs/WORKFLOW_SETUP.md).
+
+## 🧭 Planning And Contribution
+
+- Contributor guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Long-lived implementation plan: [docs/spec.md](docs/spec.md)
 
 ---
 
