@@ -1,22 +1,17 @@
-name: Ultra UI Pipeline
+name: PR Checks
 
 on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
-      - feature/**
-  schedule:
-    - cron: '0 4 * * 1'
 
 permissions:
+  actions: read
   contents: read
+  pull-requests: write
 
 jobs:
   validate:
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
 
     steps:
@@ -46,20 +41,61 @@ jobs:
       - name: Verify package contents
         run: pnpm pack:check
 
-      - name: Run test coverage
-        if: github.event_name != 'pull_request'
-        run: pnpm test:coverage
+  codeql:
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
-      - name: Upload coverage artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+    steps:
+      - name: Check code scanning availability
+        id: code_scanning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          endpoint="https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?per_page=1"
+          status=$(curl -sS -o /tmp/code_scanning_resp.json -w "%{http_code}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "$endpoint" || true)
+
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "enabled=false" >> "$GITHUB_OUTPUT"
+          echo "Skipping CodeQL because code scanning API is unavailable (HTTP $status)." >> "$GITHUB_STEP_SUMMARY"
+          echo "If you want uploads, enable Code Scanning in repository settings and ensure appropriate permissions." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout repository
+        if: steps.code_scanning.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        if: steps.code_scanning.outputs.enabled == 'true'
+        uses: github/codeql-action/init@v3
         with:
-          name: coverage-report
-          path: coverage
+          languages: javascript-typescript
+
+      - name: Autobuild
+        if: steps.code_scanning.outputs.enabled == 'true'
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL analysis
+        if: steps.code_scanning.outputs.enabled == 'true'
+        uses: github/codeql-action/analyze@v3
 
   test_case_check:
-    if: github.event_name == 'pull_request'
+    needs: codeql
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -117,6 +153,7 @@ jobs:
         run: node scripts/ci/generate-pr-test-report.mjs
 
       - name: Upload test quality artifacts
+        id: upload_test_quality_artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -125,364 +162,156 @@ jobs:
             coverage
             reports
 
+      - name: Update PR summary comment
+        if: always()
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          TEST_EXIT_CODE: ${{ steps.vitest.outputs.exit_code }}
+          DUPLICATION_EXIT_CODE: ${{ steps.duplication.outputs.exit_code }}
+          ARTIFACT_URL: ${{ steps.upload_test_quality_artifacts.outputs.artifact-url }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+
+            const pullRequest = context.payload.pull_request;
+            if (!pullRequest) {
+              core.info('No pull request payload found.');
+              return;
+            }
+
+            const requiredJobs = ['validate', 'codeql', 'test_case_check'];
+            const scopeByJob = {
+              validate: 'Typecheck, package build, and pack validation.',
+              codeql: 'Code scanning and security analysis.',
+              test_case_check: 'Vitest coverage run and duplication analysis.',
+            };
+            const labelByConclusion = {
+              success: 'SUCCESS',
+              failure: 'FAILURE',
+              cancelled: 'CANCELLED',
+              skipped: 'SKIPPED',
+              neutral: 'NEUTRAL',
+              timed_out: 'TIMED OUT',
+              action_required: 'ACTION REQUIRED',
+              queued: 'QUEUED',
+              in_progress: 'IN PROGRESS',
+            };
+
+            function readJson(filePath) {
+              if (!fs.existsSync(filePath)) {
+                return null;
+              }
+
+              return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            }
+
+            function formatPercent(value) {
+              return typeof value === 'number' && !Number.isNaN(value)
+                ? `${value.toFixed(2)}%`
+                : 'Unavailable';
+            }
+
+            const coverageSummary = readJson(path.join(process.cwd(), 'coverage', 'coverage-summary.json'));
+            const vitestReport = readJson(path.join(process.cwd(), 'reports', 'vitest-report.json'));
+            const duplicationReport = readJson(path.join(process.cwd(), 'reports', 'jscpd', 'jscpd-report.json'));
+
+            const totalCoverage = coverageSummary?.total ?? {};
+            const duplicationStats = duplicationReport?.statistics?.total ?? duplicationReport?.statistics ?? {};
+            const totalTests = vitestReport?.numTotalTests ?? 'Unavailable';
+            const passedTests = vitestReport?.numPassedTests ?? 'Unavailable';
+            const failedTests = vitestReport?.numFailedTests ?? 'Unavailable';
+            const duplicationPercentage = formatPercent(duplicationStats.percentage);
+            const testExitCode = process.env.TEST_EXIT_CODE ?? '1';
+            const duplicationExitCode = process.env.DUPLICATION_EXIT_CODE ?? '1';
+            const testCaseConclusion = testExitCode === '0' ? 'success' : 'failure';
+
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+              per_page: 100,
+            });
+
+            const rows = requiredJobs.map((jobName) => {
+              const job = jobs.jobs.find((entry) => entry.name === jobName);
+              const conclusion = jobName === 'test_case_check'
+                ? testCaseConclusion
+                : (job?.conclusion ?? job?.status ?? 'unknown');
+              const label = labelByConclusion[conclusion] ?? conclusion.toUpperCase();
+              const detailsUrl = job?.html_url ?? `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+              return `| ${jobName} | ${label} | ${scopeByJob[jobName]} | [View details](${detailsUrl}) |`;
+            });
+
+            const artifactUrl = process.env.ARTIFACT_URL;
+            const artifactLine = artifactUrl
+              ? `Artifacts: [pr-test-quality-report](${artifactUrl})`
+              : 'Artifacts: available from the workflow run page.';
+
+            const overallResult = testExitCode === '0' ? 'SUCCESS' : 'FAILURE';
+            const body = [
+              '<!-- pr-check-summary -->',
+              '## PR Check Summary',
+              '',
+              `Workflow: [PR Checks](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+              `Overall result: ${overallResult}`,
+              '',
+              '| Check | Result | Scope | Details |',
+              '| --- | --- | --- | --- |',
+              ...rows,
+              '',
+              '### Test Case Check Metrics',
+              '',
+              '| Metric | Value |',
+              '| --- | --- |',
+              `| Total Tests | ${totalTests} |`,
+              `| Passed Tests | ${passedTests} |`,
+              `| Failed Tests | ${failedTests} |`,
+              `| Coverage Lines | ${formatPercent(totalCoverage.lines?.pct)} |`,
+              `| Coverage Branches | ${formatPercent(totalCoverage.branches?.pct)} |`,
+              `| Coverage Functions | ${formatPercent(totalCoverage.functions?.pct)} |`,
+              `| Coverage Statements | ${formatPercent(totalCoverage.statements?.pct)} |`,
+              `| Code Duplication | ${duplicationExitCode === '0' ? duplicationPercentage : 'Unavailable'} |`,
+              '',
+              artifactLine,
+              '',
+              'This comment is updated automatically for each PR checks run.',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullRequest.number,
+              per_page: 100,
+            });
+
+            const existingComment = comments.find((comment) =>
+              comment.user?.type === 'Bot' && comment.body?.includes('<!-- pr-check-summary -->'),
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body,
+              });
+              core.info(`Updated PR summary comment for #${pullRequest.number}.`);
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullRequest.number,
+              body,
+            });
+            core.info(`Created PR summary comment for #${pullRequest.number}.`);
+
       - name: Fail when tests do not pass
         if: steps.vitest.outputs.exit_code != '0'
         run: |
           echo "Vitest reported failing tests or coverage threshold violations." >&2
           exit 1
-
-  codeql:
-    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Check code scanning availability
-        id: code_scanning
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          endpoint="https://api.github.com/repos/${{ github.repository }}/code-scanning/alerts?per_page=1"
-          status=$(curl -sS -o /tmp/code_scanning_resp.json -w "%{http_code}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            "$endpoint" || true)
-
-          if [ "$status" = "200" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "enabled=false" >> "$GITHUB_OUTPUT"
-          echo "Skipping CodeQL because code scanning API is unavailable (HTTP $status)." >> "$GITHUB_STEP_SUMMARY"
-          echo "If you want uploads, enable Code Scanning in repository settings and ensure appropriate permissions." >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Checkout repository
-        if: steps.code_scanning.outputs.enabled == 'true'
-        uses: actions/checkout@v4
-
-      - name: Initialize CodeQL
-        if: steps.code_scanning.outputs.enabled == 'true'
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript-typescript
-
-      - name: Autobuild
-        if: steps.code_scanning.outputs.enabled == 'true'
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL analysis
-        if: steps.code_scanning.outputs.enabled == 'true'
-        uses: github/codeql-action/analyze@v3
-
-  deploy_preview:
-    if: github.event_name == 'pull_request'
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: preview
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-    steps:
-      - name: Verify required Vercel secrets
-        id: preview_secrets
-        run: |
-          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Missing one or more preview secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout repository
-        if: steps.preview_secrets.outputs.ready == 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        if: steps.preview_secrets.outputs.ready == 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        if: steps.preview_secrets.outputs.ready == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        if: steps.preview_secrets.outputs.ready == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: Pull Vercel preview environment
-        if: steps.preview_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
-
-      - name: Build preview deployment
-        if: steps.preview_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
-
-      - name: Deploy preview
-        if: steps.preview_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
-
-  pr_merge_gate:
-    if: github.event_name == 'pull_request'
-    needs:
-      - validate
-      - test_case_check
-      - codeql
-      - deploy_preview
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Merge gate summary
-        run: |
-          echo "All pull request checks, including test coverage and duplication reporting, completed successfully." >> "$GITHUB_STEP_SUMMARY"
-
-  deploy_dev:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/'))
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: dev
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-    steps:
-      - name: Verify required Vercel secrets
-        id: dev_secrets
-        run: |
-          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Missing one or more dev secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout repository
-        if: steps.dev_secrets.outputs.ready == 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        if: steps.dev_secrets.outputs.ready == 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        if: steps.dev_secrets.outputs.ready == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        if: steps.dev_secrets.outputs.ready == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: Pull Vercel dev environment
-        if: steps.dev_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
-
-      - name: Build dev deployment
-        if: steps.dev_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
-
-      - name: Deploy dev
-        if: steps.dev_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
-
-  deploy_test:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/'))
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: test
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-    steps:
-      - name: Verify required Vercel secrets
-        id: test_secrets
-        run: |
-          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Missing one or more test secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout repository
-        if: steps.test_secrets.outputs.ready == 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        if: steps.test_secrets.outputs.ready == 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        if: steps.test_secrets.outputs.ready == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        if: steps.test_secrets.outputs.ready == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: Pull Vercel test environment
-        if: steps.test_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
-
-      - name: Build test deployment
-        if: steps.test_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
-
-      - name: Deploy test
-        if: steps.test_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
-
-  deploy_production:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-    steps:
-      - name: Verify required Vercel secrets
-        id: prod_secrets
-        run: |
-          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Missing one or more production secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout repository
-        if: steps.prod_secrets.outputs.ready == 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        if: steps.prod_secrets.outputs.ready == 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        if: steps.prod_secrets.outputs.ready == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        if: steps.prod_secrets.outputs.ready == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: Pull Vercel production environment
-        if: steps.prod_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
-
-      - name: Build production deployment
-        if: steps.prod_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel build --prod --token "$VERCEL_TOKEN"
-
-      - name: Deploy production
-        if: steps.prod_secrets.outputs.ready == 'true'
-        run: pnpm dlx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
-
-  release_packages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-    steps:
-      - name: Verify npm token
-        id: npm_auth
-        run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "NPM_TOKEN is missing in the release environment. Skipping publish." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout repository
-        if: steps.npm_auth.outputs.ready == 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        if: steps.npm_auth.outputs.ready == 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js for npm
-        if: steps.npm_auth.outputs.ready == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install dependencies
-        if: steps.npm_auth.outputs.ready == 'true'
-        run: pnpm install --frozen-lockfile
-
-      - name: Build workspace packages
-        if: steps.npm_auth.outputs.ready == 'true'
-        run: pnpm build:packages
-
-      - name: Verify package contents
-        if: steps.npm_auth.outputs.ready == 'true'
-        run: pnpm pack:check
-
-      - name: Create release pull request or publish
-        if: steps.npm_auth.outputs.ready == 'true'
-        uses: changesets/action@v1
-        with:
-          version: pnpm version-packages
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  main_deploy_gate:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs:
-      - deploy_dev
-      - deploy_test
-      - deploy_production
-      - release_packages
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Main deploy summary
-        run: |
-          echo "Push to main detected. Production deploy and release actions have completed." >> "$GITHUB_STEP_SUMMARY"

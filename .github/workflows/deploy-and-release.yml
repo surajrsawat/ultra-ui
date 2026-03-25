@@ -1,0 +1,272 @@
+name: Deploy And Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck workspace
+        run: pnpm typecheck
+
+      - name: Build packages
+        run: pnpm build:packages
+
+      - name: Verify package contents
+        run: pnpm pack:check
+
+      - name: Run test coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+
+  deploy_dev:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: dev_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more dev secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.dev_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel dev environment
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build dev deployment
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy dev
+        if: steps.dev_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
+
+  deploy_test:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: test_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more test secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.test_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel test environment
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
+
+      - name: Build test deployment
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Deploy test
+        if: steps.test_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
+
+  deploy_production:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Verify required Vercel secrets
+        id: prod_secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Missing one or more production secrets. Skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.prod_secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.prod_secrets.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        if: steps.prod_secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.prod_secrets.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel production environment
+        if: steps.prod_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build production deployment
+        if: steps.prod_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy production
+        if: steps.prod_secrets.outputs.ready == 'true'
+        run: pnpm dlx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+
+  release_packages:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+      - name: Verify npm token
+        id: npm_auth
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "NPM_TOKEN is missing in the release environment. Skipping publish." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.npm_auth.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.npm_auth.outputs.ready == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js for npm
+        if: steps.npm_auth.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        if: steps.npm_auth.outputs.ready == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages
+        if: steps.npm_auth.outputs.ready == 'true'
+        run: pnpm build:packages
+
+      - name: Verify package contents
+        if: steps.npm_auth.outputs.ready == 'true'
+        run: pnpm pack:check
+
+      - name: Create release pull request or publish
+        if: steps.npm_auth.outputs.ready == 'true'
+        uses: changesets/action@v1
+        with:
+          version: pnpm version-packages
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
