@@ -83,21 +83,13 @@ export const Divider = forwardRef<HTMLDivElement, DividerProps>(
       alignItems: 'center',
       flexDirection: isHorizontal ? 'row' : 'column',
       ...(spacing !== undefined && { margin: toPx(spacing) }),
-      ...(spacingY !== undefined && isHorizontal && {
+      ...(spacingY !== undefined && {
         marginTop: toPx(spacingY),
         marginBottom: toPx(spacingY),
       }),
-      ...(spacingX !== undefined && isHorizontal && {
+      ...(spacingX !== undefined && {
         marginLeft: toPx(spacingX),
         marginRight: toPx(spacingX),
-      }),
-      ...(spacingY !== undefined && !isHorizontal && {
-        marginLeft: toPx(spacingY),
-        marginRight: toPx(spacingY),
-      }),
-      ...(spacingX !== undefined && !isHorizontal && {
-        marginTop: toPx(spacingX),
-        marginBottom: toPx(spacingX),
       }),
       ...style,
     };

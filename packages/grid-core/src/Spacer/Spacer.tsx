@@ -59,11 +59,10 @@ export const Spacer = forwardRef<HTMLDivElement, SpacerProps>(
       ...(resolvedWidth !== undefined && { width: resolvedWidth }),
       ...(resolvedHeight !== undefined && { height: resolvedHeight }),
       ...(flexGrow !== undefined
-        ? { flexGrow }
+        ? { flexGrow, flexShrink: 0 }
         : flex
           ? { flexGrow: 1, flexShrink: 1 }
-          : {}),
-      flexShrink: 0,
+          : { flexShrink: 0 }),
       ...style,
     };
 
