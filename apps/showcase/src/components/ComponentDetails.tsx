@@ -279,13 +279,176 @@ const componentInfo: Record<string, Record<string, ComponentMeta>> = {
     },
   },
   '@ultra-ui/Grid-Core': {
-    Grid: { description: 'CSS Grid layout component.', status: 'stable' },
-    Box: { description: 'Generic layout container.', status: 'stable' },
-    Container: { description: 'Responsive container wrapper.', status: 'stable' },
-    Flex: { description: 'Flexbox layout component.', status: 'stable' },
-    Spacer: { description: 'Spacing utility component.', status: 'stable' },
-    Divider: { description: 'Visual separator component.', status: 'stable' },
-    Stack: { description: 'Vertical or horizontal stack layout.', status: 'stable' },
+    Grid: {
+      description: 'Full-featured CSS Grid layout component with support for responsive columns, auto-fit/fill, explicit templates, gap, alignment, and more.',
+      status: 'stable',
+      props: [
+        { name: 'columns', type: 'number | ResponsiveValue<number>', default: '12' },
+        { name: 'rows', type: 'number | string' },
+        { name: 'gap', type: 'string | number', default: "'16px'" },
+        { name: 'gapX', type: 'string | number' },
+        { name: 'gapY', type: 'string | number' },
+        { name: 'autoFit', type: 'boolean', default: 'false' },
+        { name: 'autoFill', type: 'boolean', default: 'false' },
+        { name: 'minColWidth', type: 'string | number', default: "'200px'" },
+        { name: 'templateColumns', type: 'string' },
+        { name: 'templateRows', type: 'string' },
+        { name: 'autoFlow', type: "'row' | 'column' | 'row dense' | 'column dense'" },
+        { name: 'autoRows', type: 'string' },
+        { name: 'autoCols', type: 'string' },
+        { name: 'alignItems', type: 'CSSProperties[alignItems]' },
+        { name: 'justifyItems', type: 'CSSProperties[justifyItems]' },
+        { name: 'alignContent', type: 'CSSProperties[alignContent]' },
+        { name: 'justifyContent', type: 'CSSProperties[justifyContent]' },
+        { name: 'padding', type: 'string | number' },
+        { name: 'paddingX', type: 'string | number' },
+        { name: 'paddingY', type: 'string | number' },
+        { name: 'width', type: 'string | number' },
+        { name: 'height', type: 'string | number' },
+        { name: 'className', type: 'string' },
+        { name: 'style', type: 'CSSProperties' },
+      ],
+      example: '<Grid columns={3} gap={16} autoFit minColWidth="200px">\n  <div>Cell 1</div>\n  <div>Cell 2</div>\n  <div>Cell 3</div>\n</Grid>',
+    },
+    Box: {
+      description: 'Generic layout and styling container that maps common design-system props to inline CSS. Supports polymorphic rendering via the `as` prop.',
+      status: 'stable',
+      props: [
+        { name: 'as', type: 'React.ElementType', default: "'div'" },
+        { name: 'display', type: 'CSSProperties[display]' },
+        { name: 'position', type: 'CSSProperties[position]' },
+        { name: 'flexDirection', type: 'CSSProperties[flexDirection]' },
+        { name: 'alignItems', type: 'CSSProperties[alignItems]' },
+        { name: 'justifyContent', type: 'CSSProperties[justifyContent]' },
+        { name: 'alignSelf', type: 'CSSProperties[alignSelf]' },
+        { name: 'justifySelf', type: 'CSSProperties[justifySelf]' },
+        { name: 'flexWrap', type: 'CSSProperties[flexWrap]' },
+        { name: 'flexGrow', type: 'CSSProperties[flexGrow]' },
+        { name: 'flexShrink', type: 'CSSProperties[flexShrink]' },
+        { name: 'flexBasis', type: 'CSSProperties[flexBasis]' },
+        { name: 'gap', type: 'string | number' },
+        { name: 'gapX', type: 'string | number' },
+        { name: 'gapY', type: 'string | number' },
+        { name: 'padding', type: 'string | number' },
+        { name: 'paddingX', type: 'string | number' },
+        { name: 'paddingY', type: 'string | number' },
+        { name: 'margin', type: 'string | number' },
+        { name: 'marginX', type: 'string | number' },
+        { name: 'marginY', type: 'string | number' },
+        { name: 'width', type: 'string | number' },
+        { name: 'height', type: 'string | number' },
+        { name: 'minWidth', type: 'string | number' },
+        { name: 'maxWidth', type: 'string | number' },
+        { name: 'minHeight', type: 'string | number' },
+        { name: 'maxHeight', type: 'string | number' },
+        { name: 'bg', type: 'string' },
+        { name: 'color', type: 'string' },
+        { name: 'borderRadius', type: 'string | number' },
+        { name: 'border', type: 'string' },
+        { name: 'boxShadow', type: 'string' },
+        { name: 'overflow', type: 'CSSProperties[overflow]' },
+        { name: 'zIndex', type: 'number | string' },
+        { name: 'opacity', type: 'number' },
+        { name: 'cursor', type: 'CSSProperties[cursor]' },
+        { name: 'gridColumn', type: 'string | number' },
+        { name: 'gridRow', type: 'string | number' },
+      ],
+      example: '<Box as="section" padding={16} bg="#f0f0f0" borderRadius={8}>\n  Content\n</Box>',
+    },
+    Container: {
+      description: 'Centered, responsive container with named size presets (xs → 2xl) and optional fluid mode that fills 100% of the parent.',
+      status: 'stable',
+      props: [
+        { name: 'maxWidth', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string | number", default: "'xl'" },
+        { name: 'paddingX', type: 'string | number', default: "'16px'" },
+        { name: 'paddingY', type: 'string | number', default: "'0px'" },
+        { name: 'padding', type: 'string | number' },
+        { name: 'centered', type: 'boolean', default: 'true' },
+        { name: 'fluid', type: 'boolean', default: 'false' },
+        { name: 'bg', type: 'string' },
+      ],
+      example: '<Container maxWidth="lg" paddingX={24}>\n  <h1>Page Title</h1>\n</Container>',
+    },
+    Flex: {
+      description: 'Flexbox layout component with first-class support for direction, alignment, wrapping, gap, and inline mode.',
+      status: 'stable',
+      props: [
+        { name: 'as', type: 'React.ElementType', default: "'div'" },
+        { name: 'direction', type: 'CSSProperties[flexDirection]', default: "'row'" },
+        { name: 'align', type: 'CSSProperties[alignItems]' },
+        { name: 'justify', type: 'CSSProperties[justifyContent]' },
+        { name: 'alignContent', type: 'CSSProperties[alignContent]' },
+        { name: 'wrap', type: 'CSSProperties[flexWrap] | boolean' },
+        { name: 'gap', type: 'string | number' },
+        { name: 'gapX', type: 'string | number' },
+        { name: 'gapY', type: 'string | number' },
+        { name: 'inline', type: 'boolean', default: 'false' },
+        { name: 'padding', type: 'string | number' },
+        { name: 'paddingX', type: 'string | number' },
+        { name: 'paddingY', type: 'string | number' },
+        { name: 'margin', type: 'string | number' },
+        { name: 'width', type: 'string | number' },
+        { name: 'height', type: 'string | number' },
+        { name: 'bg', type: 'string' },
+        { name: 'border', type: 'string' },
+        { name: 'borderRadius', type: 'string | number' },
+        { name: 'overflow', type: 'CSSProperties[overflow]' },
+        { name: 'grow', type: 'CSSProperties[flexGrow]' },
+        { name: 'shrink', type: 'CSSProperties[flexShrink]' },
+      ],
+      example: '<Flex direction="row" align="center" justify="space-between" gap={16}>\n  <span>Left</span>\n  <span>Right</span>\n</Flex>',
+    },
+    Spacer: {
+      description: 'Decorative whitespace element. Can take explicit width/height, a square size shorthand, or expand to fill remaining flex/grid space.',
+      status: 'stable',
+      props: [
+        { name: 'width', type: 'string | number' },
+        { name: 'height', type: 'string | number' },
+        { name: 'size', type: 'string | number' },
+        { name: 'flex', type: 'boolean', default: 'false' },
+        { name: 'flexGrow', type: 'number' },
+      ],
+      example: '<Flex>\n  <span>Left</span>\n  <Spacer flex />\n  <span>Right</span>\n</Flex>',
+    },
+    Divider: {
+      description: 'Visual separator rendered as a semantic <hr>. Supports horizontal/vertical orientation, solid/dashed/dotted variants, custom color and thickness, and an optional inline label.',
+      status: 'stable',
+      props: [
+        { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+        { name: 'variant', type: "'solid' | 'dashed' | 'dotted'", default: "'solid'" },
+        { name: 'color', type: 'string', default: "'currentColor'" },
+        { name: 'thickness', type: 'string | number', default: '1' },
+        { name: 'spacing', type: 'string | number' },
+        { name: 'spacingY', type: 'string | number' },
+        { name: 'spacingX', type: 'string | number' },
+        { name: 'label', type: 'ReactNode' },
+        { name: 'labelPosition', type: "'start' | 'center' | 'end'", default: "'center'" },
+        { name: 'labelGap', type: 'string | number', default: "'8px'" },
+      ],
+      example: '<Divider />\n<Divider orientation="vertical" />\n<Divider label="OR" variant="dashed" />',
+    },
+    Stack: {
+      description: 'One-dimensional flex layout for stacking children with uniform spacing. Ships with HStack (row) and VStack (column) convenience aliases. Optionally inserts Divider elements between children.',
+      status: 'stable',
+      props: [
+        { name: 'as', type: 'React.ElementType', default: "'div'" },
+        { name: 'direction', type: "'row' | 'column' | 'row-reverse' | 'column-reverse'", default: "'column'" },
+        { name: 'spacing', type: 'string | number' },
+        { name: 'align', type: 'CSSProperties[alignItems]' },
+        { name: 'justify', type: 'CSSProperties[justifyContent]' },
+        { name: 'wrap', type: 'CSSProperties[flexWrap] | boolean' },
+        { name: 'divider', type: 'boolean | ReactElement' },
+        { name: 'padding', type: 'string | number' },
+        { name: 'paddingX', type: 'string | number' },
+        { name: 'paddingY', type: 'string | number' },
+        { name: 'margin', type: 'string | number' },
+        { name: 'width', type: 'string | number' },
+        { name: 'height', type: 'string | number' },
+        { name: 'bg', type: 'string' },
+        { name: 'shouldWrapChildren', type: 'boolean', default: 'false' },
+      ],
+      example: '<Stack spacing={16} divider>\n  <div>Item 1</div>\n  <div>Item 2</div>\n  <div>Item 3</div>\n</Stack>',
+    },
   },
   '@ultra-ui/Tailwind-Wrappers': {
     TButton: { description: 'Tailwind-styled button wrapper.', status: 'stable' },
@@ -367,6 +530,141 @@ const ComponentDemo: React.FC<{ packageId: string; componentName: string }> = ({
     { id: 2, title: 'Section 2', content: 'This is the second accordion section.' },
     { id: 3, title: 'Section 3', content: 'This is the third accordion section.' },
   ];
+
+  if (packageId === '@ultra-ui/Grid-Core') {
+    const cellStyle: React.CSSProperties = {
+      background: '#e2e8f0',
+      border: '1px solid #cbd5e1',
+      borderRadius: '4px',
+      padding: '12px',
+      textAlign: 'center',
+      fontSize: '14px',
+    };
+    const labelStyle: React.CSSProperties = { fontSize: '12px', color: '#64748b', marginBottom: '4px' };
+
+    switch (componentName) {
+      case 'Grid':
+        return (
+          <div className="demo-container">
+            <p style={labelStyle}>3-column grid with 12px gap</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} style={cellStyle}>Cell {n}</div>
+              ))}
+            </div>
+            <p style={{ ...labelStyle, marginTop: '16px' }}>auto-fit minColWidth=120px</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px' }}>
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} style={cellStyle}>Item {n}</div>
+              ))}
+            </div>
+          </div>
+        );
+      case 'Box':
+        return (
+          <div className="demo-container">
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ padding: '16px', background: '#dbeafe', borderRadius: '8px', border: '1px solid #93c5fd' }}>
+                padding=16
+              </div>
+              <div style={{ padding: '8px 24px', background: '#dcfce7', borderRadius: '4px', border: '1px solid #86efac' }}>
+                paddingX=24
+              </div>
+              <div style={{ padding: '16px', background: '#fef9c3', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                borderRadius=12 + shadow
+              </div>
+            </div>
+          </div>
+        );
+      case 'Container':
+        return (
+          <div className="demo-container">
+            {(['xs', 'sm', 'md', 'lg'] as const).map((size) => (
+              <div key={size} style={{ marginBottom: '8px' }}>
+                <p style={labelStyle}>maxWidth="{size}"</p>
+                <div style={{ background: '#e0f2fe', borderLeft: '4px solid #0ea5e9', padding: '6px 12px', maxWidth: { xs: '480px', sm: '640px', md: '768px', lg: '1024px' }[size], marginLeft: 'auto', marginRight: 'auto' }}>
+                  {size.toUpperCase()} container
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'Flex':
+        return (
+          <div className="demo-container">
+            <p style={labelStyle}>direction="row" justify="space-between" align="center"</p>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '12px', borderRadius: '6px' }}>
+              <div style={cellStyle}>Start</div>
+              <div style={cellStyle}>Middle</div>
+              <div style={cellStyle}>End</div>
+            </div>
+            <p style={{ ...labelStyle, marginTop: '12px' }}>direction="column" gap=8</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#f1f5f9', padding: '12px', borderRadius: '6px' }}>
+              {['Row A', 'Row B', 'Row C'].map((r) => (
+                <div key={r} style={cellStyle}>{r}</div>
+              ))}
+            </div>
+          </div>
+        );
+      case 'Spacer':
+        return (
+          <div className="demo-container">
+            <p style={labelStyle}>Spacer flex (pushes items to edges)</p>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '8px', borderRadius: '6px', gap: '8px' }}>
+              <div style={cellStyle}>Logo</div>
+              <div style={{ flex: '1 1 auto', background: '#cbd5e1', height: '2px' }} aria-hidden="true" />
+              <div style={cellStyle}>Actions</div>
+            </div>
+            <p style={{ ...labelStyle, marginTop: '12px' }}>Fixed spacer size=24</p>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '8px', borderRadius: '6px' }}>
+              <div style={cellStyle}>A</div>
+              <div style={{ width: '24px', height: '24px', background: '#fca5a5', flexShrink: 0 }} aria-hidden="true" />
+              <div style={cellStyle}>B</div>
+            </div>
+          </div>
+        );
+      case 'Divider':
+        return (
+          <div className="demo-container">
+            <p style={labelStyle}>Horizontal — solid / dashed / dotted</p>
+            {(['solid', 'dashed', 'dotted'] as const).map((v) => (
+              <div key={v} style={{ marginBottom: '12px' }}>
+                <p style={{ ...labelStyle, marginBottom: '4px' }}>{v}</p>
+                <hr style={{ borderStyle: v, borderTopWidth: '1px', borderColor: '#94a3b8', margin: 0 }} />
+              </div>
+            ))}
+            <p style={{ ...labelStyle, marginTop: '8px' }}>With label</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <hr style={{ flex: 1, borderStyle: 'solid', borderTopWidth: '1px', borderColor: '#94a3b8', margin: 0 }} />
+              <span style={{ whiteSpace: 'nowrap', fontSize: '12px', color: '#64748b' }}>OR</span>
+              <hr style={{ flex: 1, borderStyle: 'solid', borderTopWidth: '1px', borderColor: '#94a3b8', margin: 0 }} />
+            </div>
+          </div>
+        );
+      case 'Stack':
+        return (
+          <div className="demo-container">
+            <p style={labelStyle}>VStack spacing=8</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#f1f5f9', padding: '12px', borderRadius: '6px' }}>
+              {['Item 1', 'Item 2', 'Item 3'].map((item) => (
+                <div key={item} style={cellStyle}>{item}</div>
+              ))}
+            </div>
+            <p style={{ ...labelStyle, marginTop: '12px' }}>HStack spacing=8 with dividers</p>
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '12px', borderRadius: '6px' }}>
+              {['A', 'B', 'C'].map((item, i) => (
+                <React.Fragment key={item}>
+                  <div style={cellStyle}>{item}</div>
+                  {i < 2 && <hr style={{ width: '1px', height: '24px', borderStyle: 'solid', borderLeftWidth: '1px', borderColor: '#94a3b8', margin: 0 }} />}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        );
+      default:
+        return <p>No interactive demo available for this item.</p>;
+    }
+  }
 
   if (packageId === '@ultra-ui/Headless') {
     switch (componentName) {
@@ -767,7 +1065,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({ packageId, componen
                 </div>
               </div>
 
-              {(normalizedPackageId === '@ultra-ui/Primitives' || normalizedPackageId === '@ultra-ui/Headless') && (
+              {(normalizedPackageId === '@ultra-ui/Primitives' || normalizedPackageId === '@ultra-ui/Headless' || normalizedPackageId === '@ultra-ui/Grid-Core') && (
                 <div className="example-demo-section">
                   <h2>Interactive Demo</h2>
                   <div className="demo-section">
