@@ -2,7 +2,10 @@
   flex: 1;
   background: white;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 32px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .empty-state {
@@ -65,6 +68,11 @@
   margin-bottom: 32px;
 }
 
+.details-content {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .section h2 {
   font-size: 18px;
   color: #333;
@@ -77,6 +85,12 @@
   color: #666;
   line-height: 1.6;
   margin: 0;
+}
+
+.props-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 6px;
 }
 
 .props-table {
@@ -95,6 +109,7 @@
   font-weight: 600;
   border-bottom: 2px solid #e0e0e0;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .props-table td {
@@ -102,6 +117,8 @@
   border-bottom: 1px solid #e0e0e0;
   font-size: 13px;
   color: #555;
+  word-break: break-word;
+  min-width: 80px;
 }
 
 .props-table tr:last-child td {
@@ -139,6 +156,15 @@
   .props-table th,
   .props-table td {
     padding: 8px;
+  }
+
+  .code-block-wrapper {
+    min-height: 200px;
+  }
+
+  .demo-section {
+    min-height: 200px;
+    padding: 12px;
   }
 }
 
