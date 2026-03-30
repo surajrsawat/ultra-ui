@@ -1,0 +1,273 @@
+.getting-started {
+  flex: 1;
+  background: white;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.gs-header {
+  margin-bottom: 32px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 24px;
+}
+
+.gs-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  color: #333;
+}
+
+.gs-subtitle {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.gs-content {
+  max-width: 860px;
+}
+
+.gs-section {
+  margin-bottom: 40px;
+}
+
+.gs-section h2 {
+  font-size: 20px;
+  color: #333;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.gs-section h3 {
+  font-size: 15px;
+  color: #444;
+  margin: 20px 0 8px 0;
+  font-weight: 600;
+}
+
+.gs-section p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+/* Prerequisites table */
+.gs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.gs-table th {
+  background: #f0f0f0;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e0e0;
+  font-size: 12px;
+}
+
+.gs-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 13px;
+  color: #555;
+}
+
+.gs-table tr:last-child td {
+  border-bottom: none;
+}
+
+.gs-table tbody tr:hover {
+  background: #f0f0f0;
+}
+
+/* Inline note */
+.gs-note {
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: #1565c0;
+  font-size: 13px;
+  margin-top: 12px !important;
+}
+
+/* Package cards */
+.gs-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.gs-package-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f9f9f9;
+  transition: box-shadow 0.2s;
+}
+
+.gs-package-card:hover {
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+}
+
+.gs-package-icon {
+  font-size: 22px;
+}
+
+.gs-package-card strong {
+  font-size: 13px;
+  color: #333;
+  word-break: break-word;
+}
+
+.gs-package-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+}
+
+/* Code blocks */
+.gs-code {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 8px 0 16px 0;
+  white-space: pre;
+}
+
+.gs-code code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+.gs-code-sm {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+}
+
+/* Inline code */
+.gs-section code {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #c0392b;
+}
+
+/* Best practices list */
+.gs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gs-list li {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.gs-list li strong {
+  color: #333;
+}
+
+/* Troubleshooting */
+.gs-troubleshooting {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.gs-issue {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.gs-issue h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.gs-issue p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Additional resources */
+.gs-resources {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gs-resources li {
+  font-size: 14px;
+  color: #555;
+}
+
+.gs-resources a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.gs-resources a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .getting-started {
+    padding: 16px;
+  }
+
+  .gs-header h1 {
+    font-size: 24px;
+  }
+
+  .gs-packages-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gs-troubleshooting {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .gs-packages-grid {
+    grid-template-columns: 1fr;
+  }
+}
