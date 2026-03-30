@@ -119,6 +119,16 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         />
       </div>
 
+      <nav className="nav-quick-links">
+        <button
+          className={`quick-link-item ${selectedPackage === 'getting-started' ? 'active' : ''}`}
+          onClick={() => onSelectComponent('getting-started', 'Getting Started')}
+        >
+          <span className="quick-link-icon">🚀</span>
+          <span className="quick-link-label">Getting Started</span>
+        </button>
+      </nav>
+
       <nav className="nav-packages">
         {versionedPackages.map((pkg) => (
           <div key={pkg.name} className="package-section">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SideNavigation, { packageCatalogByVersion, type UltraUiVersion } from './components/SideNavigation';
 import ComponentDetails from './components/ComponentDetails';
+import GettingStarted from './components/GettingStarted';
 import './App.css';
 
 export default function App() {
@@ -14,6 +15,10 @@ export default function App() {
   };
 
   const handleVersionChange = (version: UltraUiVersion) => {
+    if (selectedPackage === 'getting-started') {
+      setSelectedVersion(version);
+      return;
+    }
     const nextPackages = packageCatalogByVersion[version];
     const nextPackage = nextPackages.find((pkg) => pkg.name === selectedPackage) ?? nextPackages[0];
     const nextComponent = nextPackage.components.includes(selectedComponent)
@@ -34,10 +39,14 @@ export default function App() {
         selectedVersion={selectedVersion}
         onVersionChange={handleVersionChange}
       />
-      <ComponentDetails
-        packageId={selectedPackage}
-        componentName={selectedComponent}
-      />
+      {selectedPackage === 'getting-started' ? (
+        <GettingStarted />
+      ) : (
+        <ComponentDetails
+          packageId={selectedPackage}
+          componentName={selectedComponent}
+        />
+      )}
     </div>
   );
 }

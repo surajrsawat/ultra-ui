@@ -71,6 +71,45 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.nav-quick-links {
+  padding: 8px 8px 0;
+}
+
+.quick-link-item {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+  margin-bottom: 4px;
+}
+
+.quick-link-item:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.quick-link-item.active {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.quick-link-icon {
+  font-size: 16px;
+}
+
+.quick-link-label {
+  flex: 1;
+  text-align: left;
+}
+
 .nav-packages {
   flex: 1;
   overflow-y: auto;
