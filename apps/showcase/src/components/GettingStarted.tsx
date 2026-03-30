@@ -19,6 +19,7 @@ const GettingStarted: React.FC = () => {
             Before installing Ultra UI, make sure your development environment
             meets the following minimum requirements:
           </p>
+          <div className="gs-table-wrapper">
           <table className="gs-table">
             <thead>
               <tr>
@@ -50,6 +51,7 @@ const GettingStarted: React.FC = () => {
               </tr>
             </tbody>
           </table>
+          </div>
           <p className="gs-note">
             ℹ️ Check your Node.js version by running{' '}
             <code>node --version</code> in your terminal.

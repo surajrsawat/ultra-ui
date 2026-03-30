@@ -169,6 +169,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({
         {component.props && (
           <section className="section">
             <h2>Props</h2>
+            <div className="props-table-wrapper">
             <table className="props-table">
               <thead>
                 <tr>
@@ -189,6 +190,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({
                 ))}
               </tbody>
             </table>
+            </div>
           </section>
         )}
 
