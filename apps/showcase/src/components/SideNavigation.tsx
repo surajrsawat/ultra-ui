@@ -64,6 +64,8 @@ interface SideNavigationProps {
   selectedComponent: string;
   selectedVersion: UltraUiVersion;
   onVersionChange: (version: UltraUiVersion) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 const SideNavigation: React.FC<SideNavigationProps> = ({
@@ -72,6 +74,8 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   selectedComponent,
   selectedVersion,
   onVersionChange,
+  isOpen = false,
+  onClose,
 }) => {
   const [expandedPackages, setExpandedPackages] = useState<Set<string>>(
     new Set(['@ultra-ui/Primitives'])
@@ -90,10 +94,23 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
   };
 
   return (
-    <aside className="side-navigation">
-      <div className="nav-header">
-        <h1>📚 Ultra UI</h1>
-        <p>Component Library</p>
+    <>
+      {isOpen && (
+        <div className="nav-overlay" onClick={onClose} aria-hidden="true" />
+      )}
+      <aside className={`side-navigation${isOpen ? ' mobile-open' : ''}`}>
+        <div className="nav-header">
+          <div className="nav-header-top">
+            <div>
+              <h1>📚 Ultra UI</h1>
+              <p>Component Library</p>
+            </div>
+            {onClose && (
+              <button className="nav-close-btn" onClick={onClose} aria-label="Close navigation menu">
+                ✕
+              </button>
+            )}
+          </div>
         <div className="version-switcher">
           <label htmlFor="ultra-version-select" className="version-label">Version</label>
           <select
@@ -176,6 +193,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({
         <p>Ultra UI v{selectedVersion}</p>
       </div>
     </aside>
+    </>
   );
 };
 

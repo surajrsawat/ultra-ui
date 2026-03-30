@@ -5,9 +5,60 @@
   background: white;
 }
 
-@media (max-width: 768px) {
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 1024px) {
   .app-container {
     flex-direction: column;
-    height: auto;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+  }
+
+  .mobile-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .hamburger-line {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+  }
+
+  .mobile-header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
   }
 }
