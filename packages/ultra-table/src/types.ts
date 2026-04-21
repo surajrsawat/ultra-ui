@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 export type UltraTableCellValue = string | number | boolean | null;
+export type UltraTableRowKey = string | number;
 
 export type UltraTableSortDirection = 'asc' | 'desc';
 
@@ -30,12 +31,14 @@ export interface UltraTableState<Row extends object> {
   rows: Row[];
   sort?: UltraTableSortState<Row>;
   pagination: UltraTablePaginationState;
+  rowSelection: Set<UltraTableRowKey>;
 }
 
 export interface UltraTableOptions<Row extends object> {
   columns: UltraTableColumn<Row>[];
   rows: Row[];
   pageSize?: number;
+  getRowKey?: (row: Row, index: number) => UltraTableRowKey;
 }
 
 export interface UltraTableApi<Row extends object> {
@@ -50,4 +53,8 @@ export interface UltraTableApi<Row extends object> {
   updateRow: (rowIndex: number, patch: Partial<Row>) => void;
   setRows: (rows: Row[]) => void;
   setColumns: (columns: UltraTableColumn<Row>[]) => void;
+  isRowSelected: (rowKey: UltraTableRowKey) => boolean;
+  toggleRowSelection: (rowKey: UltraTableRowKey) => void;
+  toggleAllRowsSelection: (rowKeys: UltraTableRowKey[]) => void;
+  clearRowSelection: () => void;
 }

@@ -3,6 +3,7 @@ import type {
   UltraTableApi,
   UltraTableColumn,
   UltraTableOptions,
+  UltraTableRowKey,
   UltraTableSortState,
   UltraTableState,
 } from '../../types';
@@ -44,10 +45,17 @@ function sortRows<Row extends object>(
   });
 }
 
+function getRowKeys<Row extends object>(
+  rows: Row[],
+  getRowKey?: (row: Row, index: number) => UltraTableRowKey
+): UltraTableRowKey[] {
+  return rows.map((row, index) => (getRowKey ? getRowKey(row, index) : index));
+}
+
 export function useUltraTable<Row extends object>(
   options: UltraTableOptions<Row>
 ): UltraTableApi<Row> {
-  const { columns: initialColumns, rows: initialRows, pageSize = 5 } = options;
+  const { columns: initialColumns, rows: initialRows, pageSize = 5, getRowKey } = options;
 
   const [state, setState] = useState<UltraTableState<Row>>({
     columns: initialColumns,
@@ -57,6 +65,7 @@ export function useUltraTable<Row extends object>(
       pageSize,
       total: initialRows.length,
     },
+    rowSelection: new Set<UltraTableRowKey>(),
   });
 
   const sortedRows = useMemo(() => sortRows(state.rows, state.sort), [state.rows, state.sort]);
@@ -164,13 +173,62 @@ export function useUltraTable<Row extends object>(
         total: rows.length,
         page: clamp(current.pagination.page, 1, Math.max(1, Math.ceil(rows.length / current.pagination.pageSize))),
       },
+      rowSelection: (() => {
+        const nextRowKeys = new Set(getRowKeys(rows, getRowKey));
+        return new Set([...current.rowSelection].filter((key) => nextRowKeys.has(key)));
+      })(),
     }));
-  }, []);
+  }, [getRowKey]);
 
   const setColumns = useCallback((columns: UltraTableColumn<Row>[]) => {
     setState((current) => ({
       ...current,
       columns,
+    }));
+  }, []);
+
+  const isRowSelected = useCallback(
+    (rowKey: UltraTableRowKey) => state.rowSelection.has(rowKey),
+    [state.rowSelection]
+  );
+
+  const toggleRowSelection = useCallback((rowKey: UltraTableRowKey) => {
+    setState((current) => {
+      const nextRowSelection = new Set(current.rowSelection);
+      if (nextRowSelection.has(rowKey)) {
+        nextRowSelection.delete(rowKey);
+      } else {
+        nextRowSelection.add(rowKey);
+      }
+      return {
+        ...current,
+        rowSelection: nextRowSelection,
+      };
+    });
+  }, []);
+
+  const toggleAllRowsSelection = useCallback((rowKeys: UltraTableRowKey[]) => {
+    setState((current) => {
+      const nextRowSelection = new Set(current.rowSelection);
+      const allSelected = rowKeys.length > 0 && rowKeys.every((key) => nextRowSelection.has(key));
+
+      if (allSelected) {
+        rowKeys.forEach((key) => nextRowSelection.delete(key));
+      } else {
+        rowKeys.forEach((key) => nextRowSelection.add(key));
+      }
+
+      return {
+        ...current,
+        rowSelection: nextRowSelection,
+      };
+    });
+  }, []);
+
+  const clearRowSelection = useCallback(() => {
+    setState((current) => ({
+      ...current,
+      rowSelection: new Set<UltraTableRowKey>(),
     }));
   }, []);
 
@@ -192,5 +250,9 @@ export function useUltraTable<Row extends object>(
     updateRow,
     setRows,
     setColumns,
+    isRowSelected,
+    toggleRowSelection,
+    toggleAllRowsSelection,
+    clearRowSelection,
   };
 }

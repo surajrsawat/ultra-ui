@@ -496,6 +496,17 @@ const componentInfo: Record<string, Record<string, ComponentMeta>> = {
       ],
       example: "table.updateRow(0, { name: 'Updated name' });",
     },
+    'Row Selection': {
+      description: ultraTableDescriptions['Row Selection'],
+      status: 'experimental',
+      props: [
+        { name: 'state.rowSelection', type: 'Set<string | number>' },
+        { name: 'toggleRowSelection', type: '(rowKey: string | number) => void' },
+        { name: 'toggleAllRowsSelection', type: '(rowKeys: Array<string | number>) => void' },
+        { name: 'clearRowSelection', type: '() => void' },
+      ],
+      example: "table.toggleAllRowsSelection(table.pagedRows.map((row) => row.id));",
+    },
     Editing: {
       description: ultraTableDescriptions.Editing,
       status: 'experimental',

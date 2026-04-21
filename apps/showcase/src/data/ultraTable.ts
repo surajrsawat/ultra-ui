@@ -7,6 +7,7 @@ export const ultraTableDocs: ShowcaseDocItem[] = [
   { name: 'Layout', description: 'Defines the table shell, summary header, and base rendering model.' },
   { name: 'Columns', description: 'Declares typed column schema and display configuration.' },
   { name: 'Rows', description: 'Manages row collection lifecycle, insertion, and deletion flows.' },
+  { name: 'Row Selection', description: 'Tracks selected rows with per-row and select-all checkbox controls.' },
   { name: 'Editing', description: 'Supports inline and modal row editing with shared draft state.' },
   { name: 'Form Components', description: 'Embeds form controls in table cells for rich editing experiences.' },
   { name: 'Save Flow', description: 'Coordinates dirty-row tracking, async save state, and optimistic updates.' },

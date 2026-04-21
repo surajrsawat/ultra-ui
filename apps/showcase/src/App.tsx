@@ -6,8 +6,8 @@ import './App.css';
 
 export default function App() {
   const [selectedVersion, setSelectedVersion] = useState<UltraUiVersion>('1.1.0');
-  const [selectedPackage, setSelectedPackage] = useState<string>('@ultra-ui/Primitives');
-  const [selectedComponent, setSelectedComponent] = useState<string>('Button');
+  const [selectedPackage, setSelectedPackage] = useState<string>('getting-started');
+  const [selectedComponent, setSelectedComponent] = useState<string>('Getting Started');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const handleSelectComponent = (packageId: string, componentName: string) => {

@@ -68,6 +68,7 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
     columns: defaultColumns,
     rows,
     pageSize: serverMode ? serverPageSize : 5,
+    getRowKey: (row) => row.id,
   });
 
   const {
@@ -79,6 +80,9 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
     updateRow,
     reorderColumn,
     toggleColumnVisibility,
+    toggleRowSelection,
+    toggleAllRowsSelection,
+    clearRowSelection,
   } = table;
 
   useEffect(() => {
@@ -141,6 +145,11 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
   const totalPages = Math.max(1, Math.ceil(activeTotal / activePageSize));
 
   const visibleRows = serverMode ? table.state.rows : table.pagedRows;
+  const visibleRowIds = useMemo(() => visibleRows.map((row) => row.id), [visibleRows]);
+  const selectedVisibleCount = useMemo(
+    () => visibleRowIds.filter((rowId) => table.state.rowSelection.has(rowId)).length,
+    [visibleRowIds, table.state.rowSelection]
+  );
 
   const editingRow = useMemo(
     () => visibleRows.find((row) => row.id === editingRowId) ?? null,
@@ -250,6 +259,10 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
       rows={visibleRows}
       onSort={(columnKey) => sortBy(columnKey)}
       getRowKey={(row) => row.id}
+      enableRowSelection
+      selectedRowKeys={table.state.rowSelection}
+      onRowSelectionChange={(rowKey) => toggleRowSelection(rowKey)}
+      onAllRowsSelectionChange={(rowKeys) => toggleAllRowsSelection(rowKeys)}
     />
   );
 
@@ -401,6 +414,28 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
           {renderSharedTable()}
         </div>
       );
+    case 'Row Selection': {
+      return (
+        <div className="demo-container">
+          <div className="demo-grid">
+            <Button
+              variant="outline"
+              onClick={() => toggleAllRowsSelection(visibleRowIds)}
+              disabled={visibleRows.length === 0}
+            >
+              {selectedVisibleCount === visibleRows.length && visibleRows.length > 0 ? 'Unselect Visible' : 'Select Visible'}
+            </Button>
+            <Button variant="outline" onClick={clearRowSelection} disabled={table.state.rowSelection.size === 0}>
+              Clear Selection
+            </Button>
+          </div>
+          <p className="demo-feedback">
+            Selected rows (all pages): {table.state.rowSelection.size} | Selected on this view: {selectedVisibleCount}
+          </p>
+          {renderSharedTable()}
+        </div>
+      );
+    }
     case 'Form Components':
       return (
         <div className="demo-container">
