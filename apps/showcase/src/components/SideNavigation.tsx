@@ -30,6 +30,11 @@ export const packageCatalogByVersion: Record<UltraUiVersion, PackageCatalogEntry
       name: '@ultra-ui/Tailwind-Wrappers',
       icon: '🎭',
       components: ['TButton', 'TCard', 'TInput', 'TBadge', 'TAlert', 'TModal', 'TAccordion']
+    },
+    {
+      name: '@ultra-ui/Ultra-Table',
+      icon: '🧮',
+      components: ['Layout', 'Columns', 'Rows', 'Editing', 'Form Components', 'Save Flow', 'Column Management', 'Pagination']
     }
   ],
   '1.1.0': [
@@ -52,6 +57,11 @@ export const packageCatalogByVersion: Record<UltraUiVersion, PackageCatalogEntry
       name: '@ultra-ui/Tailwind-Wrappers',
       icon: '🎭',
       components: ['TButton', 'TCard', 'TInput', 'TBadge', 'TAlert', 'TModal', 'TAccordion']
+    },
+    {
+      name: '@ultra-ui/Ultra-Table',
+      icon: '🧮',
+      components: ['Layout', 'Columns', 'Rows', 'Editing', 'Form Components', 'Save Flow', 'Column Management', 'Pagination']
     }
   ]
 };

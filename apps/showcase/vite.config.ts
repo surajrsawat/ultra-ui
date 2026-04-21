@@ -9,7 +9,8 @@ export default defineConfig({
       "@ultra-ui/primitives": path.resolve(__dirname, "../../packages/primitives/src"),
       "@ultra-ui/headless": path.resolve(__dirname, "../../packages/headless/src"),
       "@ultra-ui/grid-core": path.resolve(__dirname, "../../packages/grid-core/src"),
-      "@ultra-ui/tailwind-wrappers": path.resolve(__dirname, "../../packages/tailwind-wrappers/src")
+      "@ultra-ui/tailwind-wrappers": path.resolve(__dirname, "../../packages/tailwind-wrappers/src"),
+      "@ultra-ui/ultra-table": path.resolve(__dirname, "../../packages/ultra-table/src")
     }
   },
   css: {
