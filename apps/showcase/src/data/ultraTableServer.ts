@@ -22,7 +22,7 @@ interface FetchRowsResult {
   total: number;
 }
 
-const mockDelay = (duration = 250) =>
+const mockDelay = (duration = 250): Promise<void> =>
   new Promise((resolve) => {
     setTimeout(resolve, duration);
   });

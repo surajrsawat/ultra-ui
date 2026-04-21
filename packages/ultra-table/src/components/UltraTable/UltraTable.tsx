@@ -5,17 +5,19 @@ export interface UltraTableProps<Row extends object> {
   columns: UltraTableColumn<Row>[];
   rows: Row[];
   onSort?: (columnKey: keyof Row) => void;
+  getRowKey?: (row: Row, index: number) => string | number;
 }
 
 export function UltraTable<Row extends object>({
   columns,
   rows,
   onSort,
+  getRowKey,
 }: UltraTableProps<Row>) {
   const visibleColumns = columns.filter((column) => !column.hidden);
 
   return (
-    <table className="props-table">
+    <table className="ultra-table props-table">
       <thead>
         <tr>
           {visibleColumns.map((column) => (
@@ -31,7 +33,7 @@ export function UltraTable<Row extends object>({
       </thead>
       <tbody>
         {rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
+          <tr key={getRowKey ? getRowKey(row, rowIndex) : rowIndex}>
             {visibleColumns.map((column) => {
               const value = row[column.key];
               return (

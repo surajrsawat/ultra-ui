@@ -200,7 +200,7 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
   };
 
   const addRow = () => {
-    const nextId = Math.max(0, ...clientRows.map((row) => row.id)) + 1;
+    const nextId = clientRows.reduce((maxId, row) => Math.max(maxId, row.id), 0) + 1;
     const newRow: UltraTableDemoRow = {
       id: nextId,
       name: `New Member ${nextId}`,
@@ -240,7 +240,12 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
   };
 
   const renderSharedTable = () => (
-    <UltraTable columns={table.state.columns} rows={visibleRows} onSort={(columnKey) => sortBy(columnKey)} />
+    <UltraTable
+      columns={table.state.columns}
+      rows={visibleRows}
+      onSort={(columnKey) => sortBy(columnKey)}
+      getRowKey={(row) => row.id}
+    />
   );
 
   const renderEditingPanel = () => {
@@ -335,7 +340,14 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
         <div className="demo-container">
           <div className="demo-grid">
             <Button onClick={addRow}>Add Row</Button>
-            <Button variant="outline" onClick={removeLastRow} disabled={clientRows.length === 0}>Remove Last</Button>
+            <Button
+              variant="outline"
+              onClick={removeLastRow}
+              disabled={clientRows.length === 0}
+              aria-label="Remove last row from table"
+            >
+              Remove Last
+            </Button>
           </div>
           <p className="demo-feedback">Total rows in model: {clientRows.length}</p>
           {renderSharedTable()}
@@ -373,7 +385,7 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
           </div>
           {editingMode === 'inline' && renderEditingPanel()}
           {editingMode === 'modal' && (
-            <Modal open={Boolean(editingRowId)} onClose={() => setEditingRowId(null)}>
+            <Modal open={Boolean(editingRowId)} onClose={() => setEditingRowId(null)} aria-label="Modal row editor">
               <div className="modal-content">
                 <h2>Modal Row Editor</h2>
                 {renderEditingPanel()}
@@ -396,7 +408,9 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
       return (
         <div className="demo-container">
           <div className="demo-grid">
-            <Button onClick={() => visibleRows[0] && beginEdit(visibleRows[0])}>Edit First Row</Button>
+            <Button onClick={() => beginEdit(visibleRows[0]!)} disabled={visibleRows.length === 0}>
+              Edit First Row
+            </Button>
             <Button variant="outline" onClick={finishSave} disabled={!draft || isSaving}>Save Draft</Button>
           </div>
           <p className="demo-feedback">{saveStatus}</p>

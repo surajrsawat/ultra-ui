@@ -128,6 +128,7 @@ export function useUltraTable<Row extends object>(
 
       const nextColumns = [...current.columns];
       const [item] = nextColumns.splice(sourceIndex, 1);
+      // Allow insertion at `nextColumns.length` so callers can explicitly append.
       const safeTarget = clamp(targetIndex, 0, nextColumns.length);
       nextColumns.splice(safeTarget, 0, item);
 

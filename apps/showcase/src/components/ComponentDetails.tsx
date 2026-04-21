@@ -59,6 +59,12 @@ const packageAliases: Record<string, string> = {
 const ultraTableDescriptions: Record<string, string> = Object.fromEntries(
   ultraTableDocs.map((item) => [item.name, item.description])
 );
+const packagesWithInteractiveDemos = [
+  '@ultra-ui/Primitives',
+  '@ultra-ui/Headless',
+  '@ultra-ui/Grid-Core',
+  '@ultra-ui/Ultra-Table',
+];
 
 const componentInfo: Record<string, Record<string, ComponentMeta>> = {
   '@ultra-ui/Primitives': {
@@ -1153,7 +1159,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({ packageId, componen
                 </div>
               </div>
 
-              {(normalizedPackageId === '@ultra-ui/Primitives' || normalizedPackageId === '@ultra-ui/Headless' || normalizedPackageId === '@ultra-ui/Grid-Core' || normalizedPackageId === '@ultra-ui/Ultra-Table') && (
+              {packagesWithInteractiveDemos.includes(normalizedPackageId) && (
                 <div className="example-demo-section">
                   <h2>Interactive Demo</h2>
                   <div className="demo-section">
