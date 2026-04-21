@@ -92,4 +92,67 @@ describe('useUltraTable', () => {
 
     expect(result.current.state.pagination.total).toBe(1);
   });
+
+  it('supports row selection and select-all toggles', () => {
+    const { result } = renderHook(() =>
+      useUltraTable<TableRow>({
+        columns: [
+          { key: 'id', label: 'ID' },
+          { key: 'name', label: 'Name' },
+          { key: 'status', label: 'Status' },
+        ],
+        rows: [
+          { id: 1, name: 'Alpha', status: 'active' },
+          { id: 2, name: 'Beta', status: 'draft' },
+          { id: 3, name: 'Gamma', status: 'active' },
+        ],
+        getRowKey: (row) => row.id,
+      })
+    );
+
+    act(() => {
+      result.current.toggleRowSelection(1);
+    });
+
+    expect(result.current.isRowSelected(1)).toBe(true);
+
+    act(() => {
+      result.current.toggleAllRowsSelection([1, 2, 3]);
+    });
+
+    expect([...result.current.state.rowSelection].sort()).toEqual([1, 2, 3]);
+
+    act(() => {
+      result.current.toggleAllRowsSelection([1, 2, 3]);
+    });
+
+    expect(result.current.state.rowSelection.size).toBe(0);
+  });
+
+  it('removes stale selected rows when rows are replaced', () => {
+    const { result } = renderHook(() =>
+      useUltraTable<TableRow>({
+        columns: [
+          { key: 'id', label: 'ID' },
+          { key: 'name', label: 'Name' },
+          { key: 'status', label: 'Status' },
+        ],
+        rows: [
+          { id: 1, name: 'Alpha', status: 'active' },
+          { id: 2, name: 'Beta', status: 'draft' },
+        ],
+        getRowKey: (row) => row.id,
+      })
+    );
+
+    act(() => {
+      result.current.toggleAllRowsSelection([1, 2]);
+    });
+
+    act(() => {
+      result.current.setRows([{ id: 2, name: 'Beta', status: 'draft' }]);
+    });
+
+    expect([...result.current.state.rowSelection]).toEqual([2]);
+  });
 });
