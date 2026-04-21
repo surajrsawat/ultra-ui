@@ -23,7 +23,7 @@ export function UltraTable<Row extends object>({
           {visibleColumns.map((column) => (
             <th key={String(column.key)}>
               {column.sortable && onSort ? (
-                <button className="demo-button" onClick={() => onSort(column.key)}>{column.label}</button>
+                <button type="button" className="demo-button" onClick={() => onSort(column.key)}>{column.label}</button>
               ) : (
                 column.label
               )}
