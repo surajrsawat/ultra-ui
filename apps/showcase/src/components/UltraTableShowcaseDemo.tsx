@@ -145,6 +145,11 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
   const totalPages = Math.max(1, Math.ceil(activeTotal / activePageSize));
 
   const visibleRows = serverMode ? table.state.rows : table.pagedRows;
+  const visibleRowIds = useMemo(() => visibleRows.map((row) => row.id), [visibleRows]);
+  const selectedVisibleCount = useMemo(
+    () => visibleRowIds.filter((rowId) => table.state.rowSelection.has(rowId)).length,
+    [visibleRowIds, table.state.rowSelection]
+  );
 
   const editingRow = useMemo(
     () => visibleRows.find((row) => row.id === editingRowId) ?? null,
@@ -410,8 +415,6 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
         </div>
       );
     case 'Row Selection': {
-      const visibleRowIds = visibleRows.map((row) => row.id);
-      const selectedVisibleCount = visibleRowIds.filter((rowId) => table.state.rowSelection.has(rowId)).length;
       return (
         <div className="demo-container">
           <div className="demo-grid">

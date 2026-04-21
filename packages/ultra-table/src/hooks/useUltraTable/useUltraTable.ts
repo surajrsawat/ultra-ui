@@ -173,9 +173,10 @@ export function useUltraTable<Row extends object>(
         total: rows.length,
         page: clamp(current.pagination.page, 1, Math.max(1, Math.ceil(rows.length / current.pagination.pageSize))),
       },
-      rowSelection: new Set(
-        [...current.rowSelection].filter((key) => getRowKeys(rows, getRowKey).includes(key))
-      ),
+      rowSelection: (() => {
+        const nextRowKeys = new Set(getRowKeys(rows, getRowKey));
+        return new Set([...current.rowSelection].filter((key) => nextRowKeys.has(key)));
+      })(),
     }));
   }, [getRowKey]);
 
