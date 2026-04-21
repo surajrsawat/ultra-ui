@@ -21,7 +21,7 @@
     "build": "pnpm -r --filter '!@ultra-ui/showcase' run build",
     "build:showcase": "pnpm build && pnpm --filter @ultra-ui/showcase run build",
     "build:packages": "pnpm -r --filter '!@ultra-ui/showcase' run build",
-    "pack:check": "pnpm -r --filter @ultra-ui/primitives --filter @ultra-ui/headless --filter @ultra-ui/grid-core --filter @ultra-ui/tailwind-wrappers exec npm pack --dry-run",
+    "pack:check": "pnpm -r --filter @ultra-ui/primitives --filter @ultra-ui/headless --filter @ultra-ui/grid-core --filter @ultra-ui/tailwind-wrappers --filter @ultra-ui/ultra-table exec npm pack --dry-run",
     "typecheck": "pnpm -r exec tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

@@ -1,0 +1,1 @@
+export { useUltraTable } from './useUltraTable';

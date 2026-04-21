@@ -25,6 +25,8 @@ import {
   useTypeahead,
   useToggle,
 } from '@ultra-ui/headless';
+import { ultraTableDocs } from '../data/ultraTable';
+import UltraTableShowcaseDemo from './UltraTableShowcaseDemo';
 import './ComponentDetails.css';
 
 interface ComponentDetailsProps {
@@ -51,7 +53,18 @@ const packageAliases: Record<string, string> = {
   '@ultra-ui/headless': '@ultra-ui/Headless',
   '@ultra-ui/grid-core': '@ultra-ui/Grid-Core',
   '@ultra-ui/tailwind-wrappers': '@ultra-ui/Tailwind-Wrappers',
+  '@ultra-ui/ultra-table': '@ultra-ui/Ultra-Table',
 };
+
+const ultraTableDescriptions: Record<string, string> = Object.fromEntries(
+  ultraTableDocs.map((item) => [item.name, item.description])
+);
+const packagesWithInteractiveDemos = [
+  '@ultra-ui/Primitives',
+  '@ultra-ui/Headless',
+  '@ultra-ui/Grid-Core',
+  '@ultra-ui/Ultra-Table',
+];
 
 const componentInfo: Record<string, Record<string, ComponentMeta>> = {
   '@ultra-ui/Primitives': {
@@ -450,6 +463,87 @@ const componentInfo: Record<string, Record<string, ComponentMeta>> = {
       example: '<Stack spacing={16} divider>\n  <div>Item 1</div>\n  <div>Item 2</div>\n  <div>Item 3</div>\n</Stack>',
     },
   },
+  '@ultra-ui/Ultra-Table': {
+    Layout: {
+      description: ultraTableDescriptions.Layout,
+      status: 'experimental',
+      props: [
+        { name: 'columns', type: 'UltraTableOptions<Row>["columns"]', required: true },
+        { name: 'rows', type: 'UltraTableOptions<Row>["rows"]', required: true },
+        { name: 'pageSize', type: 'number', default: '5' },
+      ],
+      example: "const table = useUltraTable({ columns, rows, pageSize: 5 });",
+    },
+    Columns: {
+      description: ultraTableDescriptions.Columns,
+      status: 'experimental',
+      props: [
+        { name: 'key', type: 'keyof Row', required: true },
+        { name: 'label', type: 'string', required: true },
+        { name: 'sortable', type: 'boolean', default: 'false' },
+        { name: 'hidden', type: 'boolean', default: 'false' },
+        { name: 'renderCell', type: '(value: Row[keyof Row], row: Row) => ReactNode' },
+      ],
+      example: "const columns = [{ key: 'name', label: 'Name', sortable: true, hidden: false }];",
+    },
+    Rows: {
+      description: ultraTableDescriptions.Rows,
+      status: 'experimental',
+      props: [
+        { name: 'setRows', type: '(rows: Row[]) => void' },
+        { name: 'updateRow', type: '(rowIndex: number, patch: Partial<Row>) => void' },
+        { name: 'pagedRows', type: 'Row[]' },
+      ],
+      example: "table.updateRow(0, { name: 'Updated name' });",
+    },
+    Editing: {
+      description: ultraTableDescriptions.Editing,
+      status: 'experimental',
+      props: [
+        { name: 'updateRow', type: '(rowIndex: number, patch: Partial<Row>) => void' },
+        { name: 'setRows', type: '(rows: Row[]) => void' },
+      ],
+      example: "table.updateRow(1, { active: true });",
+    },
+    'Form Components': {
+      description: `${ultraTableDescriptions['Form Components']} (showcase pattern built with renderCell + row updates).`,
+      status: 'experimental',
+      props: [
+        { name: 'renderCell', type: '(value: Row[keyof Row], row: Row) => ReactNode' },
+        { name: 'updateRow', type: '(rowIndex: number, patch: Partial<Row>) => void' },
+      ],
+      example: "const columns = [{ key: 'active', label: 'Active', renderCell: (value) => value ? 'Yes' : 'No' }];",
+    },
+    'Save Flow': {
+      description: `${ultraTableDescriptions['Save Flow']} (showcase demo wires this through mock async handlers).`,
+      status: 'experimental',
+      props: [
+        { name: 'setRows', type: '(rows: Row[]) => void' },
+        { name: 'updateRow', type: '(rowIndex: number, patch: Partial<Row>) => void' },
+      ],
+      example: "table.setRows(updatedRowsAfterSave);",
+    },
+    'Column Management': {
+      description: ultraTableDescriptions['Column Management'],
+      status: 'experimental',
+      props: [
+        { name: 'toggleColumnVisibility', type: '(columnKey: keyof Row) => void' },
+        { name: 'reorderColumn', type: '(columnKey: keyof Row, targetIndex: number) => void' },
+        { name: 'setColumns', type: '(columns: UltraTableColumn<Row>[]) => void' },
+      ],
+      example: "table.reorderColumn('name', 0);",
+    },
+    Pagination: {
+      description: ultraTableDescriptions.Pagination,
+      status: 'experimental',
+      props: [
+        { name: 'state.pagination', type: 'UltraTablePaginationState' },
+        { name: 'setPage', type: '(page: number) => void' },
+        { name: 'setPageSize', type: '(pageSize: number) => void' },
+      ],
+      example: "table.setPage(2); table.setPageSize(10);",
+    },
+  },
   '@ultra-ui/Tailwind-Wrappers': {
     TButton: { description: 'Tailwind-styled button wrapper.', status: 'stable' },
     TCard: { description: 'Tailwind-styled card wrapper.', status: 'stable' },
@@ -530,6 +624,10 @@ const ComponentDemo: React.FC<{ packageId: string; componentName: string }> = ({
     { id: 2, title: 'Section 2', content: 'This is the second accordion section.' },
     { id: 3, title: 'Section 3', content: 'This is the third accordion section.' },
   ];
+
+  if (packageId === '@ultra-ui/Ultra-Table') {
+    return <UltraTableShowcaseDemo feature={componentName} />;
+  }
 
   if (packageId === '@ultra-ui/Grid-Core') {
     const cellStyle: React.CSSProperties = {
@@ -1067,7 +1165,7 @@ const ComponentDetails: React.FC<ComponentDetailsProps> = ({ packageId, componen
                 </div>
               </div>
 
-              {(normalizedPackageId === '@ultra-ui/Primitives' || normalizedPackageId === '@ultra-ui/Headless' || normalizedPackageId === '@ultra-ui/Grid-Core') && (
+              {packagesWithInteractiveDemos.includes(normalizedPackageId) && (
                 <div className="example-demo-section">
                   <h2>Interactive Demo</h2>
                   <div className="demo-section">

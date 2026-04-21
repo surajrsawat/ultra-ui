@@ -1,0 +1,39 @@
+{
+  "name": "@ultra-ui/ultra-table",
+  "version": "1.1.0",
+  "description": "Typed table state and rendering primitives for Ultra UI.",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surajrsawat/ultra-ui.git",
+    "directory": "packages/ultra-table"
+  },
+  "homepage": "https://github.com/surajrsawat/ultra-ui/tree/main/packages/ultra-table",
+  "bugs": {
+    "url": "https://github.com/surajrsawat/ultra-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --outDir dist"
+  }
+}

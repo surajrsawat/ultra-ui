@@ -24,6 +24,7 @@ A comprehensive, production-ready React component library built with TypeScript,
 - `@ultra-ui/headless` - Headless hooks
 - `@ultra-ui/grid-core` - Advanced grid utilities
 - `@ultra-ui/tailwind-wrappers` - Tailwind-styled variations
+- `@ultra-ui/ultra-table` - Typed data-grid state + rendering primitives
 
 🎨 **Component Categories**
 - **Layout** - Box, Container, Grid
@@ -34,6 +35,7 @@ A comprehensive, production-ready React component library built with TypeScript,
 - **Feedback** - Alert, Snackbar, ProgressBar
 - **Navigation** - Navbar, Tabs, Pagination
 - **Surfaces** - Modal, Accordion
+- **Ultra Table** - Stateful data-grid architecture (layout, columns, rows, editing, save flow, pagination)
 
 ⚙️ **Tech Stack**
 - React 18+ with TypeScript 5
@@ -110,6 +112,26 @@ All components are unstyled by default. Use Tailwind classes:
 </Button>
 ```
 
+### Ultra Table APIs
+
+```tsx
+import { UltraTable, useUltraTable } from '@ultra-ui/ultra-table';
+
+const table = useUltraTable({
+  columns: [
+    { key: 'id', label: 'ID', sortable: true },
+    { key: 'name', label: 'Name', sortable: true },
+  ],
+  rows: [
+    { id: 1, name: 'Alpha' },
+    { id: 2, name: 'Beta' },
+  ],
+  pageSize: 5,
+});
+
+<UltraTable columns={table.state.columns} rows={table.pagedRows} onSort={table.sortBy} />;
+```
+
 ---
 
 ## 📚 Component Showcase
@@ -125,6 +147,7 @@ The example app includes interactive demos of all components organized by catego
 - 🗂️ **Display** - Cards, chips, badges
 - 📍 **Navigation** - Tabs, pagination, navbar
 - 🪟 **Surfaces** - Modals, accordions
+- 🧮 **Ultra Table** - Shared state demos for editing, save workflows, column management, and client/server pagination
 
 **To run locally:**
 ```bash
@@ -168,7 +191,8 @@ ultra-ui/
 │   │   │   │   └── useToggle/
 │   │   │   └── index.ts
 │   ├── grid-core/               # Advanced grid utilities
-│   └── tailwind-wrappers/       # Tailwind-styled variants
+│   ├── tailwind-wrappers/       # Tailwind-styled variants
+│   └── ultra-table/             # Typed data-grid state + renderer
 ├── package.json                 # Root workspace config
 ├── pnpm-workspace.yaml         # Monorepo config
 ├── tsconfig.base.json          # Shared TypeScript config
