@@ -4,14 +4,14 @@ export type UltraTableCellValue = string | number | boolean | null;
 
 export type UltraTableSortDirection = 'asc' | 'desc';
 
-export interface UltraTableColumn<Row extends Record<string, UltraTableCellValue>> {
+export interface UltraTableColumn<Row extends object> {
   key: keyof Row;
   label: string;
   sortable?: boolean;
   hidden?: boolean;
   width?: number;
   editable?: boolean;
-  renderCell?: (value: UltraTableCellValue, row: Row) => ReactNode;
+  renderCell?: (value: Row[keyof Row], row: Row) => ReactNode;
 }
 
 export interface UltraTablePaginationState {
@@ -20,25 +20,25 @@ export interface UltraTablePaginationState {
   total: number;
 }
 
-export interface UltraTableSortState<Row extends Record<string, UltraTableCellValue>> {
+export interface UltraTableSortState<Row extends object> {
   key: keyof Row;
   direction: UltraTableSortDirection;
 }
 
-export interface UltraTableState<Row extends Record<string, UltraTableCellValue>> {
+export interface UltraTableState<Row extends object> {
   columns: UltraTableColumn<Row>[];
   rows: Row[];
   sort?: UltraTableSortState<Row>;
   pagination: UltraTablePaginationState;
 }
 
-export interface UltraTableOptions<Row extends Record<string, UltraTableCellValue>> {
+export interface UltraTableOptions<Row extends object> {
   columns: UltraTableColumn<Row>[];
   rows: Row[];
   pageSize?: number;
 }
 
-export interface UltraTableApi<Row extends Record<string, UltraTableCellValue>> {
+export interface UltraTableApi<Row extends object> {
   state: UltraTableState<Row>;
   visibleColumns: UltraTableColumn<Row>[];
   pagedRows: Row[];

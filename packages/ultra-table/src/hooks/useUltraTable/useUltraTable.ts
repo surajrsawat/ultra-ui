@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import type {
   UltraTableApi,
-  UltraTableCellValue,
   UltraTableColumn,
   UltraTableOptions,
   UltraTableSortState,
@@ -12,7 +11,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-function sortRows<Row extends Record<string, UltraTableCellValue>>(
+function sortRows<Row extends object>(
   rows: Row[],
   sort?: UltraTableSortState<Row>
 ): Row[] {
@@ -22,8 +21,8 @@ function sortRows<Row extends Record<string, UltraTableCellValue>>(
 
   const multiplier = sort.direction === 'asc' ? 1 : -1;
   return [...rows].sort((a, b) => {
-    const left = a[sort.key];
-    const right = b[sort.key];
+    const left = a[sort.key] as unknown;
+    const right = b[sort.key] as unknown;
 
     if (left === right) {
       return 0;
@@ -45,7 +44,7 @@ function sortRows<Row extends Record<string, UltraTableCellValue>>(
   });
 }
 
-export function useUltraTable<Row extends Record<string, UltraTableCellValue>>(
+export function useUltraTable<Row extends object>(
   options: UltraTableOptions<Row>
 ): UltraTableApi<Row> {
   const { columns: initialColumns, rows: initialRows, pageSize = 5 } = options;

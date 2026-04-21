@@ -1,13 +1,13 @@
 import React from 'react';
-import type { UltraTableCellValue, UltraTableColumn } from '../../types';
+import type { UltraTableColumn } from '../../types';
 
-export interface UltraTableProps<Row extends Record<string, UltraTableCellValue>> {
+export interface UltraTableProps<Row extends object> {
   columns: UltraTableColumn<Row>[];
   rows: Row[];
   onSort?: (columnKey: keyof Row) => void;
 }
 
-export function UltraTable<Row extends Record<string, UltraTableCellValue>>({
+export function UltraTable<Row extends object>({
   columns,
   rows,
   onSort,

@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { useUltraTable } from '../../..';
+import { useUltraTable } from '../../index';
 
 interface TableRow {
   id: number;
