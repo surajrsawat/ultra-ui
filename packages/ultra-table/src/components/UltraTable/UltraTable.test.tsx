@@ -22,9 +22,9 @@ describe('UltraTable', () => {
       />
     );
 
-    expect(screen.getByLabelText('Select all rows')).toBeInTheDocument();
-    expect(screen.getByLabelText('Select row 1')).toBeChecked();
-    expect(screen.getByLabelText('Select row 2')).not.toBeChecked();
+    expect(screen.queryByLabelText('Select all rows')).not.toBeNull();
+    expect((screen.getByLabelText('Select row 1') as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByLabelText('Select row 2') as HTMLInputElement).checked).toBe(false);
   });
 
   it('notifies selection handlers for row and select-all toggles', () => {
