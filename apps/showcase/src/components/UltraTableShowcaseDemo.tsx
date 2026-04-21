@@ -181,22 +181,27 @@ const UltraTableShowcaseDemo: React.FC<UltraTableShowcaseDemoProps> = ({ feature
     setIsSaving(true);
     setSaveStatus('Saving...');
 
-    if (serverMode) {
-      await saveOrUpdateRow(draft);
-      const response = await fetchPaginatedRows({ page: serverPage, pageSize: serverPageSize });
-      setRows(response.rows);
-      setServerTotal(response.total);
-      setSaveStatus('Saved to mock server');
-    } else {
-      setClientRows((currentRows) =>
-        currentRows.map((row) => (row.id === draft.id ? { ...draft } : row))
-      );
-      setSaveStatus('Saved locally');
+    try {
+      if (serverMode) {
+        await saveOrUpdateRow(draft);
+        const response = await fetchPaginatedRows({ page: serverPage, pageSize: serverPageSize });
+        setRows(response.rows);
+        setServerTotal(response.total);
+        setSaveStatus('Saved to mock server');
+      } else {
+        setClientRows((currentRows) =>
+          currentRows.map((row) => (row.id === draft.id ? { ...draft } : row))
+        );
+        setSaveStatus('Saved locally');
+      }
+    } catch (error) {
+      setSaveStatus('Save failed');
+      throw error;
+    } finally {
+      setIsSaving(false);
+      setEditingRowId(null);
+      setDraft(null);
     }
-
-    setIsSaving(false);
-    setEditingRowId(null);
-    setDraft(null);
   };
 
   const addRow = () => {
